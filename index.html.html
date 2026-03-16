@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS // SYSTEM</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --red:#ff003c; --cyan:#00e5ff; --yellow:#ffe500; --green:#00ff88;
+  --bg:#0a0a0e; --bg2:#0f0f14; --panel:rgba(15,15,20,0.97);
+  --text:#e8e0d0; --text-dim:rgba(232,224,208,0.4);
+  --border:rgba(255,0,60,0.3);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow:hidden;cursor:crosshair;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+.vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(255,0,60,0.09) 100%);}
+.bracket{position:fixed;width:70px;height:70px;z-index:1;pointer-events:none;}
+.bracket.tl{top:10px;left:10px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
+.bracket.tr{top:10px;right:10px;border-top:2px solid var(--red);border-right:2px solid var(--red);}
+.bracket.bl{bottom:10px;left:10px;border-bottom:2px solid var(--red);border-left:2px solid var(--red);}
+.bracket.br{bottom:10px;right:10px;border-bottom:2px solid var(--red);border-right:2px solid var(--red);}
+.vtag{position:fixed;z-index:1;pointer-events:none;font-size:9px;color:rgba(255,0,60,0.35);letter-spacing:2px;}
+.vtag.tl{top:12px;left:88px;} .vtag.tr{top:12px;right:88px;}
+.vtag.bl{bottom:12px;left:88px;} .vtag.br{bottom:12px;right:88px;}
+#app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;}
+
+/* ── KEY SCREEN ── */
+#key-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;}
+.key-box{width:100%;max-width:500px;background:var(--panel);border:1px solid var(--red);position:relative;animation:fadeUp 0.4s ease-out;clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));}
+.key-box::before{content:'';position:absolute;top:0;right:0;width:28px;height:28px;background:var(--red);clip-path:polygon(100% 0,0 0,100% 100%);}
+.key-box-inner{padding:36px 32px 32px;}
+.sys-label{font-size:9px;color:var(--red);letter-spacing:4px;margin-bottom:6px;opacity:0.7;}
+.key-title{font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:700;color:var(--text);letter-spacing:10px;line-height:1;margin-bottom:4px;text-shadow:3px 0 0 var(--red),-1px 0 0 var(--cyan);}
+.key-title:hover{animation:glitch 0.25s infinite;cursor:default;}
+.key-sub{font-size:10px;color:var(--text-dim);letter-spacing:3px;margin-bottom:4px;}
+.key-ver{font-size:9px;color:rgba(255,0,60,0.5);letter-spacing:2px;margin-bottom:24px;}
+.field-label{font-size:9px;color:var(--red);letter-spacing:3px;margin-bottom:5px;}
+.key-input{width:100%;background:rgba(255,0,60,0.04);border:none;border-bottom:2px solid var(--red);padding:11px 13px;color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:2px;margin-bottom:14px;outline:none;transition:all 0.2s;}
+.key-input:focus{background:rgba(255,0,60,0.07);border-color:var(--cyan);color:var(--text);}
+.key-input::placeholder{color:rgba(255,0,60,0.25);}
+.key-error{color:var(--red);font-size:10px;margin-bottom:10px;display:none;letter-spacing:1px;}
+.key-btn{width:100%;background:var(--red);border:none;padding:13px;color:#000;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:5px;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:all 0.15s;}
+.key-btn:hover{background:var(--yellow);letter-spacing:8px;}
+.key-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.key-hint{margin-top:16px;font-size:10px;color:rgba(232,224,208,0.22);line-height:1.9;letter-spacing:1px;}
+.key-hint a{color:var(--cyan);text-decoration:none;}
+.key-hint a:hover{color:var(--yellow);}
+
+/* ── FOLDER CONFIG SCREEN ── */
+#folder-screen{flex:1;display:none;align-items:center;justify-content:center;padding:24px;}
+.folder-config-box{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--red);position:relative;animation:fadeUp 0.4s ease-out;clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));}
+.folder-config-box::before{content:'';position:absolute;top:0;right:0;width:28px;height:28px;background:var(--red);clip-path:polygon(100% 0,0 0,100% 100%);}
+.folder-config-inner{padding:32px 30px 28px;}
+.config-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--text);letter-spacing:4px;margin-bottom:4px;}
+.config-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:22px;}
+.config-hint-box{background:rgba(0,229,255,0.05);border-left:2px solid var(--cyan);padding:10px 14px;margin-bottom:20px;font-size:11px;color:rgba(0,229,255,0.7);line-height:1.7;}
+.config-tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid rgba(255,0,60,0.2);}
+.config-tab{padding:8px 18px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.15s;margin-bottom:-1px;}
+.config-tab.active{color:var(--red);border-bottom-color:var(--red);}
+.config-tab:hover{color:var(--text);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* Drive folder search */
+.search-row{display:flex;gap:8px;margin-bottom:12px;}
+.search-input{flex:1;background:rgba(255,0,60,0.04);border:none;border-bottom:2px solid rgba(255,0,60,0.4);padding:10px 13px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--cyan);}
+.search-input::placeholder{color:rgba(255,0,60,0.25);}
+.search-btn{background:var(--red);border:none;padding:10px 16px;color:#000;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));transition:background 0.15s;}
+.search-btn:hover{background:var(--yellow);}
+
+.search-results{max-height:180px;overflow-y:auto;border:1px solid rgba(255,0,60,0.15);}
+.search-results::-webkit-scrollbar{width:3px;}
+.search-results::-webkit-scrollbar-thumb{background:rgba(255,0,60,0.25);}
+.search-result-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,0,60,0.08);transition:background 0.15s;display:flex;align-items:center;justify-content:space-between;}
+.search-result-item:hover{background:rgba(255,0,60,0.08);}
+.search-result-item:last-child{border-bottom:none;}
+.result-name{font-size:12px;color:var(--text);}
+.result-select{font-size:10px;color:rgba(255,0,60,0.4);}
+.search-result-item:hover .result-select{color:var(--red);}
+.search-empty{padding:14px;font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:1px;}
+
+/* Selected folder display */
+.selected-folder{background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.3);border-left:3px solid var(--green);padding:10px 14px;margin-top:14px;font-size:11px;color:var(--green);letter-spacing:1px;display:none;}
+.sel-label{font-size:9px;color:rgba(0,255,136,0.4);letter-spacing:3px;margin-bottom:3px;}
+
+.config-btn{width:100%;margin-top:18px;background:var(--red);border:none;padding:13px;color:#000;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:5px;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:all 0.15s;}
+.config-btn:hover{background:var(--yellow);}
+.config-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.skip-btn{width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,0,60,0.3);padding:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.15s;}
+.skip-btn:hover{border-color:var(--red);color:var(--text);}
+
+/* ── CHAT SCREEN ── */
+#chat-screen{flex:1;display:none;flex-direction:column;height:100vh;}
+.header{height:54px;border-bottom:2px solid var(--red);background:var(--bg2);display:flex;align-items:stretch;flex-shrink:0;}
+.header-logo{background:var(--red);padding:0 16px;display:flex;align-items:center;gap:10px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 100%,0 100%);padding-right:28px;}
+.header-logo-text{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#000;letter-spacing:5px;}
+.header-info{flex:1;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;}
+.header-tag{font-size:9px;color:var(--text-dim);letter-spacing:2px;border-left:1px solid rgba(255,0,60,0.2);padding-left:10px;white-space:nowrap;}
+.header-tag.root-tag{color:rgba(0,229,255,0.6);border-color:rgba(0,229,255,0.2);overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.header-right{display:flex;align-items:center;gap:8px;padding-right:12px;flex-shrink:0;}
+.status-indicator{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--cyan);letter-spacing:2px;}
+.status-dot{width:7px;height:7px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 2s ease-in-out infinite;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
+.header-btn{background:none;border:1px solid rgba(255,0,60,0.3);padding:4px 9px;color:rgba(255,0,60,0.5);font-size:9px;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:1px;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));}
+.header-btn:hover{border-color:var(--red);color:var(--red);}
+
+.quick-actions{display:flex;gap:0;border-bottom:1px solid rgba(255,0,60,0.15);background:var(--bg2);flex-shrink:0;overflow-x:auto;}
+.quick-actions::-webkit-scrollbar{height:0;}
+.qa-btn{padding:9px 15px;background:transparent;border:none;border-right:1px solid rgba(255,0,60,0.1);color:var(--text-dim);font-size:10px;font-family:'Share Tech Mono',monospace;cursor:pointer;white-space:nowrap;letter-spacing:1px;transition:all 0.15s;position:relative;}
+.qa-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--red);transform:scaleX(0);transition:transform 0.2s;}
+.qa-btn:hover{background:rgba(255,0,60,0.05);color:var(--text);}
+.qa-btn:hover::after{transform:scaleX(1);}
+
+#messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;}
+#messages::-webkit-scrollbar{width:3px;}
+#messages::-webkit-scrollbar-thumb{background:rgba(255,0,60,0.2);}
+.msg-row{display:flex;margin-bottom:13px;animation:slideIn 0.22s ease-out;}
+.msg-row.user{justify-content:flex-end;}
+.msg-avatar{width:30px;height:30px;flex-shrink:0;background:var(--red);margin-right:10px;display:flex;align-items:center;justify-content:center;font-size:13px;align-self:flex-end;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);box-shadow:0 0 10px rgba(255,0,60,0.35);}
+.msg-bubble{max-width:74%;padding:11px 15px;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;position:relative;}
+.msg-row.assistant .msg-bubble{background:rgba(255,255,255,0.03);border-left:2px solid var(--red);border-bottom:1px solid rgba(255,0,60,0.12);color:var(--text);}
+.msg-row.assistant .msg-bubble::before{content:'//';position:absolute;top:11px;right:9px;font-size:9px;color:rgba(255,0,60,0.15);}
+.msg-row.user .msg-bubble{background:rgba(0,229,255,0.05);border-right:2px solid var(--cyan);border-top:1px solid rgba(0,229,255,0.15);color:var(--cyan);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.typing-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:13px;animation:slideIn 0.22s ease-out;}
+.typing-bubble{background:rgba(255,255,255,0.03);border-left:2px solid var(--red);padding:12px 16px;display:flex;gap:5px;align-items:center;}
+.typing-dot{width:6px;height:6px;background:var(--red);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);animation:blink 1.2s ease-in-out infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+
+.input-area{padding:10px 16px 13px;border-top:2px solid rgba(255,0,60,0.2);background:var(--bg2);flex-shrink:0;}
+.input-label{font-size:9px;color:rgba(255,0,60,0.35);letter-spacing:3px;margin-bottom:5px;}
+.input-row{display:flex;gap:8px;align-items:flex-end;}
+.input-wrap{flex:1;background:rgba(255,0,60,0.03);border-bottom:2px solid rgba(255,0,60,0.3);padding:9px 13px;transition:border-color 0.2s;}
+.input-wrap:focus-within{border-color:var(--cyan);}
+#msg-input{width:100%;background:transparent;border:none;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;line-height:1.5;resize:none;caret-color:var(--red);max-height:100px;overflow-y:auto;}
+#msg-input:focus{outline:none;}
+#msg-input::placeholder{color:rgba(255,0,60,0.2);}
+.send-btn{width:44px;height:42px;background:var(--red);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.send-btn:hover{background:var(--yellow);}
+.send-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.input-footer{text-align:center;margin-top:6px;font-size:9px;color:rgba(255,0,60,0.15);letter-spacing:2px;}
+
+/* ── UPLOAD MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.88);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;}
+.modal-overlay.active{display:flex;}
+.modal{width:100%;max-width:520px;margin:16px;background:var(--bg2);border:1px solid var(--red);clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px));animation:fadeUp 0.28s ease-out;position:relative;}
+.modal::before{content:'';position:absolute;top:0;right:0;width:26px;height:26px;background:var(--red);clip-path:polygon(100% 0,0 0,100% 100%);}
+.modal-inner{padding:24px 24px 20px;}
+.modal-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:4px;margin-bottom:3px;}
+.modal-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:16px;}
+.modal-file-info{background:rgba(255,0,60,0.06);border-left:2px solid var(--red);padding:9px 13px;margin-bottom:14px;font-size:12px;color:var(--cyan);word-break:break-all;}
+.breadcrumb{display:flex;align-items:center;background:rgba(0,0,0,0.3);border:1px solid rgba(255,0,60,0.15);padding:7px 11px;margin-bottom:10px;flex-wrap:wrap;gap:2px;min-height:34px;}
+.breadcrumb-item{font-size:11px;color:var(--cyan);cursor:pointer;letter-spacing:1px;padding:1px 3px;transition:color 0.15s;}
+.breadcrumb-item:hover{color:var(--yellow);text-decoration:underline;}
+.breadcrumb-sep{font-size:10px;color:rgba(255,0,60,0.35);margin:0 2px;}
+.breadcrumb-current{font-size:11px;color:var(--text);letter-spacing:1px;padding:1px 3px;}
+.folder-list{background:rgba(0,0,0,0.2);border:1px solid rgba(255,0,60,0.15);max-height:180px;overflow-y:auto;margin-bottom:12px;}
+.folder-list::-webkit-scrollbar{width:3px;}
+.folder-list::-webkit-scrollbar-thumb{background:rgba(255,0,60,0.2);}
+.folder-item{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;border-bottom:1px solid rgba(255,0,60,0.07);transition:background 0.15s;}
+.folder-item:last-child{border-bottom:none;}
+.folder-item:hover{background:rgba(255,0,60,0.07);}
+.folder-item-name{font-size:12px;color:var(--text);display:flex;align-items:center;gap:7px;}
+.folder-item-arrow{font-size:10px;color:rgba(255,0,60,0.35);}
+.folder-item:hover .folder-item-arrow{color:var(--red);}
+.folder-empty{padding:14px;font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:1px;}
+.folder-loading{padding:14px;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-align:center;}
+.destination-box{background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.25);border-left:3px solid var(--green);padding:8px 12px;margin-bottom:14px;font-size:11px;color:var(--green);letter-spacing:1px;}
+.dest-label{font-size:9px;color:rgba(0,255,136,0.4);letter-spacing:3px;margin-bottom:3px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btn{flex:1;padding:11px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;cursor:pointer;border:none;transition:all 0.15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.modal-btn.primary{background:var(--red);color:#000;}
+.modal-btn.primary:hover{background:var(--yellow);}
+.modal-btn.secondary{background:transparent;border:1px solid rgba(255,0,60,0.3);color:var(--text-dim);}
+.modal-btn.secondary:hover{border-color:var(--red);color:var(--text);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:0.3}50%{opacity:1}}
+@keyframes glitch{0%,100%{text-shadow:3px 0 var(--red),-1px 0 var(--cyan)}33%{text-shadow:-3px 0 var(--red),1px 0 var(--cyan)}66%{text-shadow:2px 0 var(--yellow),-2px 0 var(--red)}}
+</style>
+</head>
+<body>
+<div class="vignette"></div>
+<div class="bracket tl"></div><div class="bracket tr"></div>
+<div class="bracket bl"></div><div class="bracket br"></div>
+<div class="vtag tl">SYS.V2.1</div><div class="vtag tr">NET::ACTIVE</div>
+<div class="vtag bl">DRIVE::LINKED</div><div class="vtag br">AUTH::LOCAL</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal"><div class="modal-inner">
+    <div class="modal-title">// UPLOAD FILE</div>
+    <div class="modal-sub">NAVEGA HASTA LA CARPETA DESTINO</div>
+    <div class="modal-file-info" id="modal-file-name">📄 archivo</div>
+    <div class="breadcrumb" id="modal-breadcrumb"></div>
+    <div class="folder-list" id="modal-folder-list"><div class="folder-loading">// CARGANDO...</div></div>
+    <div class="destination-box"><div class="dest-label">// DESTINO ACTUAL</div><span id="dest-display">📁 raíz</span></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeUploadModal()">[ CANCELAR ]</button>
+      <button class="modal-btn primary" onclick="confirmUpload()">[ SUBIR AQUÍ ]</button>
+    </div>
+  </div></div>
+</div>
+
+<input type="file" id="upload-input" style="display:none" onchange="openUploadModal(this)"/>
+
+<div id="app">
+
+  <!-- 1. KEY SCREEN -->
+  <div id="key-screen">
+    <div class="key-box"><div class="key-box-inner">
+      <div class="sys-label">// SYSTEM ACCESS REQUIRED</div>
+      <div class="key-title">NEXUS</div>
+      <div class="key-sub">PERSONAL AI ASSISTANT // GROQ ENGINE</div>
+      <div class="key-ver">BUILD 2.1 — NIGHT CITY EDITION</div>
+      <div class="field-label">// API KEY [GROQ]</div>
+      <input class="key-input" id="api-key-input" type="password" placeholder="gsk_..." autocomplete="off"/>
+      <div class="key-error" id="key-error"></div>
+      <button class="key-btn" onclick="connectKey()">ACCESS SYSTEM</button>
+      <div class="key-hint">API key gratis en <a href="https://console.groq.com" target="_blank">console.groq.com</a> → API Keys → Create API Key<br/>Tu key se guarda solo en tu navegador.</div>
+    </div></div>
+  </div>
+
+  <!-- 2. FOLDER CONFIG SCREEN -->
+  <div id="folder-screen" style="display:none;flex:1;align-items:center;justify-content:center;padding:24px;">
+    <div class="folder-config-box"><div class="folder-config-inner">
+      <div class="config-title">// CARPETA RAÍZ</div>
+      <div class="config-sub">SELECCIONA DESDE DONDE QUIERES NAVEGAR</div>
+      <div class="config-hint-box">
+        Esta será la carpeta principal de NEXUS.<br/>
+        Puedes buscarla por nombre o ingresar su ID directamente desde Google Drive.
+      </div>
+
+      <div class="config-tabs">
+        <button class="config-tab active" onclick="switchTab('search')">[ BUSCAR POR NOMBRE ]</button>
+        <button class="config-tab" onclick="switchTab('id')">[ INGRESAR ID ]</button>
+        <button class="config-tab" onclick="switchTab('root')">[ USAR RAÍZ ]</button>
+      </div>
+
+      <!-- Tab: Search -->
+      <div class="tab-panel active" id="tab-search">
+        <div class="search-row">
+          <input class="search-input" id="folder-search-input" placeholder="Nombre de la carpeta..." onkeydown="if(event.key==='Enter')searchFolders()"/>
+          <button class="search-btn" onclick="searchFolders()">BUSCAR</button>
+        </div>
+        <div class="search-results" id="search-results">
+          <div class="search-empty">// Escribe el nombre y presiona BUSCAR</div>
+        </div>
+      </div>
+
+      <!-- Tab: ID manual -->
+      <div class="tab-panel" id="tab-id">
+        <div class="field-label">// ID DE CARPETA (desde la URL de Google Drive)</div>
+        <input class="key-input" id="folder-id-input" placeholder="1XGojV6_tdgXDaQUoB-..." style="margin-bottom:6px;"/>
+        <div style="font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:6px;">
+          Abre la carpeta en Drive → copia el ID de la URL:<br/>
+          drive.google.com/drive/folders/<span style="color:var(--cyan)">ESTE_ES_EL_ID</span>
+        </div>
+      </div>
+
+      <!-- Tab: Root -->
+      <div class="tab-panel" id="tab-root">
+        <div style="padding:16px 0;font-size:12px;color:var(--text-dim);letter-spacing:1px;line-height:1.8;">
+          // Usará <span style="color:var(--cyan)">Mi Drive (raíz)</span> como carpeta principal.<br/>
+          Verás todos tus archivos y carpetas al navegar.
+        </div>
+      </div>
+
+      <!-- Selected folder display -->
+      <div class="selected-folder" id="selected-folder-display">
+        <div class="sel-label">// CARPETA SELECCIONADA</div>
+        <span id="selected-folder-name">—</span>
+      </div>
+
+      <button class="config-btn" id="enter-nexus-btn" onclick="enterNexus()">INGRESAR A NEXUS</button>
+      <button class="skip-btn" onclick="skipFolderConfig()">[ Omitir — usar Mi Drive ]</button>
+    </div></div>
+  </div>
+
+  <!-- 3. CHAT SCREEN -->
+  <div id="chat-screen">
+    <div class="header">
+      <div class="header-logo"><span style="font-size:15px">⚡</span><span class="header-logo-text">NEXUS</span></div>
+      <div class="header-info">
+        <span class="header-tag">GROQ + LLAMA 3.3</span>
+        <span class="header-tag root-tag" id="root-tag">DRIVE :: RAÍZ</span>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator"><div class="status-dot"></div><span>ONLINE</span></div>
+        <button class="header-btn" onclick="changeFolder()" title="Cambiar carpeta raíz">📁 CAMBIAR</button>
+        <button class="header-btn" onclick="logout()">[ EXIT ]</button>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="qa-btn" onclick="quickSend('¿Qué puedes hacer por mí?')">[ AYUDA ]</button>
+      <button class="qa-btn" onclick="driveList()">[ VER DRIVE ]</button>
+      <button class="qa-btn" onclick="driveSearchPrompt()">[ BUSCAR ]</button>
+      <button class="qa-btn" onclick="document.getElementById('upload-input').click()">[ SUBIR ARCHIVO ]</button>
+      <button class="qa-btn" onclick="driveFolderPrompt()">[ NUEVA CARPETA ]</button>
+      <button class="qa-btn" onclick="quickSend('Ayúdame a escribir código en Java')">[ PROGRAMAR ]</button>
+      <button class="qa-btn" onclick="quickSend('Explícame un concepto de tecnología')">[ APRENDER ]</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <div class="input-area">
+      <div class="input-label">// INPUT TERMINAL</div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <textarea id="msg-input" rows="2" placeholder="Escribe aquí... [ENTER] enviar  [SHIFT+ENTER] nueva línea"></textarea>
+        </div>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">▶</button>
+      </div>
+      <div class="input-footer">NEXUS // GROQ + LLAMA 3.3 70B // NIGHT CITY EDITION</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BACKEND = 'http://localhost:5000';
+let apiKey = '', history = [], isLoading = false, pendingFile = null;
+let rootFolderId = 'root', rootFolderName = 'Mi Drive';
+let navStack = [], currentFolderId = 'root', currentFolderName = 'Mi Drive';
+let activeTab = 'search', selectedFolderId = null, selectedFolderName = null;
+
+const SYSTEM = `Eres NEXUS, un asistente de IA con actitud cyberpunk. Fuiste creado para ayudar a gestionar Google Drive y resolver cualquier tarea.
+Personalidad: directo, seguro, con actitud netrunner. Usas "choom", "preem" ocasionalmente.
+Siempre en español colombiano casual. Emojis técnicos: ⚡ 🔍 📁 ✅ 🚀 🛠️ 💡. Conciso pero completo.
+Ayudas con: programación, tecnología, Drive, matemáticas, proyectos y lo que sea.`;
+
+window.onload = () => {
+  const k = localStorage.getItem('nexus_groq_key');
+  const r = localStorage.getItem('nexus_root_id');
+  const rn = localStorage.getItem('nexus_root_name');
+  if (k) apiKey = k;
+  if (r) { rootFolderId = r; rootFolderName = rn || 'Mi Drive'; }
+
+  if (apiKey) {
+    // Si ya tiene key, va directo al chat (ya configuró antes)
+    if (r) showChat();
+    else showFolderConfig();
+  }
+
+  document.getElementById('api-key-input').addEventListener('keydown', e => { if(e.key==='Enter') connectKey(); });
+  document.getElementById('msg-input').addEventListener('keydown', e => {
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+    autoResize(e.target);
+  });
+};
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+function connectKey(){
+  const input = document.getElementById('api-key-input').value.trim();
+  const errEl = document.getElementById('key-error');
+  if(!input.startsWith('gsk_')){errEl.style.display='block';errEl.textContent='// ERROR: KEY MUST START WITH gsk_...';return;}
+  errEl.style.display='none';
+  apiKey=input;
+  localStorage.setItem('nexus_groq_key',input);
+  showFolderConfig();
+}
+
+function showFolderConfig(){
+  document.getElementById('key-screen').style.display='none';
+  document.getElementById('folder-screen').style.display='flex';
+  document.getElementById('chat-screen').style.display='none';
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.config-tab').forEach((t,i)=>{
+    t.classList.toggle('active',['search','id','root'][i]===tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach((p,i)=>{
+    p.classList.toggle('active',['tab-search','tab-id','tab-root'][i]==='tab-'+tab);
+  });
+  // Reset selected
+  selectedFolderId=null; selectedFolderName=null;
+  document.getElementById('selected-folder-display').style.display='none';
+}
+
+async function searchFolders(){
+  const q = document.getElementById('folder-search-input').value.trim();
+  if(!q) return;
+  const res_el = document.getElementById('search-results');
+  res_el.innerHTML='<div class="search-empty">// BUSCANDO...</div>';
+  try {
+    const res = await fetch(`${BACKEND}/drive/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    res_el.innerHTML='';
+    const folders = (data.files||[]).filter(f=>f.mimeType==='application/vnd.google-apps.folder');
+    if(!folders.length){res_el.innerHTML='<div class="search-empty">// No se encontraron carpetas con ese nombre</div>';return;}
+    folders.forEach(f=>{
+      const item=document.createElement('div'); item.className='search-result-item';
+      item.innerHTML=`<span class="result-name">📁 ${f.name}</span><span class="result-select">SELECCIONAR ›</span>`;
+      item.onclick=()=>selectFolder(f.id, f.name);
+      res_el.appendChild(item);
+    });
+  } catch(e){ res_el.innerHTML='<div class="search-empty">// ERROR: Backend no responde</div>'; }
+}
+
+function selectFolder(id, name){
+  selectedFolderId=id; selectedFolderName=name;
+  document.getElementById('selected-folder-display').style.display='block';
+  document.getElementById('selected-folder-name').textContent='📁 '+name;
+}
+
+function enterNexus(){
+  if(activeTab==='search'){
+    if(!selectedFolderId){alert('// Selecciona una carpeta primero');return;}
+    rootFolderId=selectedFolderId; rootFolderName=selectedFolderName;
+  } else if(activeTab==='id'){
+    const id=document.getElementById('folder-id-input').value.trim();
+    if(!id){alert('// Ingresa el ID de la carpeta');return;}
+    rootFolderId=id; rootFolderName='Carpeta Drive';
+  } else {
+    rootFolderId='root'; rootFolderName='Mi Drive';
+  }
+  localStorage.setItem('nexus_root_id', rootFolderId);
+  localStorage.setItem('nexus_root_name', rootFolderName);
+  showChat();
+}
+
+function skipFolderConfig(){
+  rootFolderId='root'; rootFolderName='Mi Drive';
+  localStorage.setItem('nexus_root_id','root');
+  localStorage.setItem('nexus_root_name','Mi Drive');
+  showChat();
+}
+
+function changeFolder(){
+  selectedFolderId=null; selectedFolderName=null;
+  document.getElementById('selected-folder-display').style.display='none';
+  document.getElementById('folder-search-input').value='';
+  document.getElementById('search-results').innerHTML='<div class="search-empty">// Escribe el nombre y presiona BUSCAR</div>';
+  showFolderConfig();
+}
+
+function showChat(){
+  document.getElementById('key-screen').style.display='none';
+  document.getElementById('folder-screen').style.display='none';
+  document.getElementById('chat-screen').style.display='flex';
+  document.getElementById('root-tag').textContent='📁 '+rootFolderName.toUpperCase();
+  currentFolderId=rootFolderId; currentFolderName=rootFolderName;
+  if(!document.getElementById('messages').children.length)
+    addMessage('assistant',`⚡ NEXUS en línea, choom. Carpeta raíz: "${rootFolderName}". Listo para gestionar tu Drive. ¿Arrancamos?`);
+  document.getElementById('msg-input').focus();
+}
+
+function logout(){
+  localStorage.removeItem('nexus_groq_key');
+  localStorage.removeItem('nexus_root_id');
+  localStorage.removeItem('nexus_root_name');
+  apiKey=''; history=[];
+  document.getElementById('messages').innerHTML='';
+  document.getElementById('chat-screen').style.display='none';
+  document.getElementById('api-key-input').value='';
+  document.getElementById('key-screen').style.display='flex';
+}
+
+function addMessage(role,content){
+  const msgs=document.getElementById('messages');
+  const row=document.createElement('div'); row.className=`msg-row ${role}`;
+  if(role==='assistant'){const av=document.createElement('div');av.className='msg-avatar';av.textContent='⚡';row.appendChild(av);}
+  const b=document.createElement('div');b.className='msg-bubble';b.textContent=content;
+  row.appendChild(b);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+}
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const row=document.createElement('div');row.className='typing-row';row.id='typing-indicator';
+  const av=document.createElement('div');av.className='msg-avatar';av.textContent='⚡';
+  const b=document.createElement('div');b.className='typing-bubble';
+  b.innerHTML='<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  row.appendChild(av);row.appendChild(b);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById('typing-indicator');if(el)el.remove();}
+
+async function sendMessage(){
+  const input=document.getElementById('msg-input');
+  const text=input.value.trim();
+  if(!text||isLoading)return;
+  input.value='';input.style.height='auto';
+  isLoading=true;document.getElementById('send-btn').disabled=true;
+  addMessage('user',text);history.push({role:'user',content:text});
+  showTyping();
+  try{
+    const msgs=[{role:'system',content:SYSTEM}];
+    for(const m of history)msgs.push({role:m.role==='model'?'assistant':m.role,content:m.content});
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:msgs,max_tokens:1000,temperature:0.9})
+    });
+    const data=await res.json();hideTyping();
+    if(res.ok){
+      const reply=data.choices?.[0]?.message?.content||'Sin respuesta.';
+      addMessage('assistant',reply);history.push({role:'assistant',content:reply});
+      if(history.length>24)history=history.slice(-24);
+    }else addMessage('assistant','// ERROR: '+(data.error?.message||'Algo salió mal.'));
+  }catch(e){hideTyping();addMessage('assistant','// CONNECTION ERROR. Verifica tu internet.');}
+  finally{isLoading=false;document.getElementById('send-btn').disabled=false;document.getElementById('msg-input').focus();}
+}
+
+async function quickSend(text){if(isLoading)return;document.getElementById('msg-input').value=text;await sendMessage();}
+
+async function driveList(){
+  addMessage('user','📂 Ver archivos en "'+rootFolderName+'"');showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/list?folder_id=${rootFolderId}`);
+    const data=await res.json();hideTyping();
+    if(data.error){addMessage('assistant','// ERROR: '+data.error);return;}
+    if(!data.files.length){addMessage('assistant','📂 Carpeta vacía.');return;}
+    let msg=`📂 ${rootFolderName.toUpperCase()}\n${'─'.repeat(30)}\n`;
+    data.files.forEach(f=>{msg+=(f.mimeType==='application/vnd.google-apps.folder'?'📁':'📄')+'  '+f.name+'\n';});
+    addMessage('assistant',msg);
+  }catch(e){hideTyping();addMessage('assistant','// ERROR: Backend no responde. ¿Está corriendo iniciar.bat?');}
+}
+
+async function driveSearchPrompt(){
+  const q=prompt('// BUSCAR EN DRIVE:\nEscribe el nombre:');if(!q)return;
+  addMessage('user','🔍 Buscar: '+q);showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/search?q=${encodeURIComponent(q)}`);
+    const data=await res.json();hideTyping();
+    if(data.error){addMessage('assistant','// ERROR: '+data.error);return;}
+    if(!data.files.length){addMessage('assistant',`// NOT FOUND: "${q}" no existe.`);return;}
+    let msg=`🔍 RESULTADOS: "${q}"\n${'─'.repeat(28)}\n`;
+    data.files.forEach(f=>{msg+=(f.mimeType==='application/vnd.google-apps.folder'?'📁':'📄')+'  '+f.name+'\n';});
+    addMessage('assistant',msg);
+  }catch(e){hideTyping();addMessage('assistant','// ERROR: Backend no responde.');}
+}
+
+async function driveFolderPrompt(){
+  const name=prompt('// NUEVA CARPETA:\nEscribe el nombre:');if(!name)return;
+  addMessage('user','📁 Crear carpeta: '+name);showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/folder`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,parent_id:rootFolderId})});
+    const data=await res.json();hideTyping();
+    if(data.success)addMessage('assistant',`✅ Carpeta "${data.folder.name}" creada en "${rootFolderName}". 📁`);
+    else addMessage('assistant','// ERROR: '+(data.error||'Algo salió mal'));
+  }catch(e){hideTyping();addMessage('assistant','// ERROR: Backend no responde.');}
+}
+
+// ── UPLOAD MODAL ──
+function openUploadModal(input){
+  const file=input.files[0];if(!file)return;
+  pendingFile=file;
+  navStack=[];currentFolderId=rootFolderId;currentFolderName=rootFolderName;
+  document.getElementById('modal-file-name').textContent='📄 '+file.name;
+  renderModalBreadcrumb();loadModalFolders(rootFolderId);updateDestDisplay();
+  document.getElementById('upload-modal').classList.add('active');
+  input.value='';
+}
+
+function renderModalBreadcrumb(){
+  const bc=document.getElementById('modal-breadcrumb');bc.innerHTML='';
+  const root=document.createElement('span');root.className='breadcrumb-item';
+  root.textContent='📁 '+rootFolderName;
+  root.onclick=()=>modalNavigateTo(rootFolderId,rootFolderName,-1);
+  bc.appendChild(root);
+  navStack.forEach((item,idx)=>{
+    const sep=document.createElement('span');sep.className='breadcrumb-sep';sep.textContent=' › ';bc.appendChild(sep);
+    if(idx<navStack.length-1){
+      const s=document.createElement('span');s.className='breadcrumb-item';s.textContent=item.name;
+      s.onclick=()=>modalNavigateTo(item.id,item.name,idx);bc.appendChild(s);
+    }else{
+      const s=document.createElement('span');s.className='breadcrumb-current';s.textContent=item.name;bc.appendChild(s);
+    }
+  });
+}
+
+async function loadModalFolders(folderId){
+  const list=document.getElementById('modal-folder-list');
+  list.innerHTML='<div class="folder-loading">// CARGANDO CARPETAS...</div>';
+  try{
+    const res=await fetch(`${BACKEND}/drive/folders?folder_id=${folderId}`);
+    const data=await res.json();list.innerHTML='';
+    if(data.error){list.innerHTML=`<div class="folder-empty">// ERROR: ${data.error}</div>`;return;}
+    if(!data.folders||!data.folders.length){list.innerHTML='<div class="folder-empty">// Sin subcarpetas — puedes subir aquí ✅</div>';return;}
+    data.folders.forEach(f=>{
+      const item=document.createElement('div');item.className='folder-item';
+      item.innerHTML=`<span class="folder-item-name">📁 ${f.name}</span><span class="folder-item-arrow">ENTRAR ›</span>`;
+      item.onclick=()=>enterModalFolder(f.id,f.name);
+      list.appendChild(item);
+    });
+  }catch(e){list.innerHTML='<div class="folder-empty">// ERROR: Backend no responde</div>';}
+}
+
+function enterModalFolder(id,name){
+  navStack.push({id,name});currentFolderId=id;currentFolderName=name;
+  renderModalBreadcrumb();loadModalFolders(id);updateDestDisplay();
+}
+
+function modalNavigateTo(id,name,stackIdx){
+  if(stackIdx===-1){navStack=[];currentFolderId=rootFolderId;currentFolderName=rootFolderName;}
+  else{navStack=navStack.slice(0,stackIdx+1);currentFolderId=id;currentFolderName=name;}
+  renderModalBreadcrumb();loadModalFolders(currentFolderId);updateDestDisplay();
+}
+
+function updateDestDisplay(){
+  const path=[rootFolderName,...navStack.map(s=>s.name)].join(' › ');
+  document.getElementById('dest-display').textContent='📁 '+path;
+}
+
+function closeUploadModal(){document.getElementById('upload-modal').classList.remove('active');pendingFile=null;}
+
+async function confirmUpload(){
+  if(!pendingFile)return;
+  const file=pendingFile,folderId=currentFolderId;
+  const path=[rootFolderName,...navStack.map(s=>s.name)].join(' › ');
+  closeUploadModal();
+  addMessage('user',`⬆️ Subir "${file.name}"\n→ ${path}`);showTyping();
+  const fd=new FormData();fd.append('file',file);fd.append('folder_id',folderId);
+  pendingFile=null;
+  try{
+    const res=await fetch(`${BACKEND}/drive/upload`,{method:'POST',body:fd});
+    const data=await res.json();hideTyping();
+    if(data.success)addMessage('assistant',`✅ "${data.file.name}" subido a:\n📁 ${path}\n\nPreem, choom! 🚀`);
+    else addMessage('assistant','// ERROR: '+(data.error||'Algo salió mal'));
+  }catch(e){hideTyping();addMessage('assistant','// ERROR: Backend no responde. ¿Está corriendo iniciar.bat?');}
+}
+</script>
+</body>
+</html>
