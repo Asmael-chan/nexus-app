@@ -1,0 +1,1344 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS AI // Web Live, PDF Fast y Google Drive</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#ff003c;--cyan:#00e5ff;--yellow:#ffe500;--green:#00ff88;--purple:#9d00ff;--bg:#0a0a0e;--bg2:#0f0f14;--bg3:#13131a;--panel:rgba(15,15,20,0.97);--text:#e8e0d0;--text-dim:rgba(232,224,208,0.4);--sw:240px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;cursor:crosshair;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+.vig{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(255,0,60,0.07) 100%);}
+.brk{position:fixed;width:60px;height:60px;z-index:1;pointer-events:none;}
+.brk.tl{top:10px;left:10px;border-top:2px solid var(--red);border-left:2px solid var(--red);}
+.brk.tr{top:10px;right:10px;border-top:2px solid var(--red);border-right:2px solid var(--red);}
+.brk.bl{bottom:10px;left:10px;border-bottom:2px solid var(--red);border-left:2px solid var(--red);}
+.brk.br{bottom:10px;right:10px;border-bottom:2px solid var(--red);border-right:2px solid var(--red);}
+.vtg{position:fixed;z-index:1;pointer-events:none;font-size:9px;color:rgba(255,0,60,0.3);letter-spacing:2px;}
+.vtg.tl{top:12px;left:78px;}.vtg.tr{top:12px;right:78px;}
+.vtg.bl{bottom:12px;left:78px;}.vtg.br{bottom:12px;right:78px;}
+#app{position:relative;z-index:2;display:flex;flex-direction:column;height:100vh;min-height:0;}
+
+/* WELCOME */
+#ws{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;}
+.wb{width:100%;max-width:1120px;max-height:calc(100vh - 48px);overflow:auto;background:var(--panel);border:1px solid rgba(255,0,60,.35);position:relative;animation:fu .4s ease-out;clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));box-shadow:0 0 0 1px rgba(0,229,255,.06),0 30px 80px rgba(0,0,0,.45);}
+.wb::-webkit-scrollbar{width:4px;}
+.wb::-webkit-scrollbar-thumb{background:rgba(255,0,60,.2);}
+.wb::before{content:'';position:absolute;top:0;right:0;width:28px;height:28px;background:var(--red);clip-path:polygon(100% 0,0 0,100% 100%);}
+.wbi{padding:34px 34px 30px;}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.9fr);gap:22px;}
+.hero-side{display:flex;flex-direction:column;gap:14px;}
+.legacy-hero{display:none;}
+.wsl{font-size:9px;color:var(--red);letter-spacing:4px;margin-bottom:6px;opacity:.7;}
+.wt{font-family:'Rajdhani',sans-serif;font-size:56px;font-weight:700;color:var(--text);letter-spacing:10px;line-height:1;margin-bottom:4px;text-shadow:3px 0 0 var(--red),-1px 0 0 var(--cyan);}
+.wt:hover{animation:gl .25s infinite;cursor:default;}
+.ws2{font-size:10px;color:var(--text-dim);letter-spacing:3px;margin-bottom:8px;}
+.wv{font-size:11px;color:rgba(232,224,208,.75);letter-spacing:1px;line-height:1.8;margin-bottom:18px;max-width:640px;}
+.launch-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.launch-chip{font-size:10px;letter-spacing:1.5px;padding:7px 10px;border:1px solid rgba(255,0,60,.2);background:rgba(255,0,60,.06);color:var(--text);}
+.feat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.feat-card{padding:15px 14px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,0,60,.02));border:1px solid rgba(255,255,255,.07);min-height:144px;position:relative;overflow:hidden;}
+.feat-card::after{content:'';position:absolute;inset:auto 0 0 0;height:2px;background:linear-gradient(90deg,rgba(255,0,60,.6),rgba(0,229,255,.45));}
+.feat-head{font-size:9px;color:var(--red);letter-spacing:3px;margin-bottom:8px;}
+.feat-copy{font-size:11px;color:var(--text-dim);letter-spacing:.5px;line-height:1.65;}
+.feat-copy strong{display:block;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:22px;line-height:1.1;letter-spacing:1px;margin-bottom:8px;}
+.start-btn{width:100%;background:var(--red);border:none;padding:13px;color:#000;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:5px;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:all .15s;}
+.start-btn:hover{background:var(--yellow);letter-spacing:8px;}
+.drive-btn{width:100%;margin-top:8px;background:transparent;border:1px solid rgba(0,229,255,.3);padding:11px;color:rgba(0,229,255,.6);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;cursor:pointer;transition:all .2s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.drive-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.cta-row{display:flex;gap:10px;margin-top:4px;}
+.cta-row .start-btn,.cta-row .drive-btn{width:auto;flex:1;margin-top:0;}
+.mini-panel{padding:16px 16px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
+.panel-kicker{font-size:9px;color:var(--cyan);letter-spacing:3px;margin-bottom:6px;}
+.panel-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:2px;margin-bottom:12px;color:var(--text);}
+.point-list{display:grid;gap:8px;}
+.point-item{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start;padding-top:9px;border-top:1px solid rgba(255,255,255,.06);}
+.point-item:first-child{padding-top:0;border-top:none;}
+.point-num{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--yellow);}
+.point-text{font-size:11px;line-height:1.65;color:var(--text-dim);}
+.point-text strong{display:block;color:var(--text);margin-bottom:2px;}
+.price-grid{display:grid;gap:10px;}
+.plan-card{padding:14px;border:1px solid rgba(0,229,255,.16);background:rgba(0,229,255,.03);}
+.plan-card.featured{border-color:rgba(255,229,0,.34);background:linear-gradient(180deg,rgba(255,229,0,.08),rgba(255,0,60,.04));}
+.plan-tier{font-size:9px;letter-spacing:3px;color:var(--cyan);margin-bottom:6px;}
+.plan-card.featured .plan-tier{color:var(--yellow);}
+.plan-price{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;line-height:1;color:var(--text);}
+.plan-price span{font-size:11px;color:var(--text-dim);margin-left:5px;}
+.plan-copy{font-size:10px;color:var(--text-dim);line-height:1.65;margin:8px 0 10px;}
+.plan-list{display:grid;gap:6px;}
+.plan-list span{font-size:10px;color:var(--text);}
+.plan-btn{width:100%;margin-top:12px;padding:10px;border:1px solid rgba(255,0,60,.28);background:rgba(255,0,60,.06);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.plan-btn:hover{border-color:var(--red);background:rgba(255,0,60,.14);}
+.plan-card.featured .plan-btn{border-color:rgba(255,229,0,.34);background:rgba(255,229,0,.1);color:var(--yellow);}
+.plan-card.featured .plan-btn:hover{background:rgba(255,229,0,.16);}
+.plan-note{margin-top:10px;font-size:10px;color:rgba(232,224,208,.6);line-height:1.65;}
+.pay-btn{width:100%;padding:10px;border:1px solid rgba(0,229,255,.22);background:rgba(0,229,255,.05);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.pay-btn:hover{border-color:var(--cyan);background:rgba(0,229,255,.12);color:var(--text);}
+.billing-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.billing-pill{padding:7px 10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);}
+.billing-pill.ready{color:var(--green);border-color:rgba(0,255,136,.25);background:rgba(0,255,136,.07);}
+.billing-pill.pending{color:var(--yellow);border-color:rgba(255,229,0,.24);background:rgba(255,229,0,.08);}
+.billing-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;}
+.billing-actions .plan-btn,.billing-actions .pay-btn{margin-top:0;}
+.billing-note{margin-top:10px;font-size:10px;color:rgba(232,224,208,.6);line-height:1.65;}
+.billing-modal .modal{max-width:760px;border-color:rgba(255,229,0,.35);}
+.billing-summary{padding:14px;border:1px solid rgba(255,229,0,.18);background:linear-gradient(180deg,rgba(255,229,0,.06),rgba(255,0,60,.03));margin-bottom:14px;}
+.billing-plan{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.billing-plan-name{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:2px;color:var(--text);}
+.billing-plan-price{font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:var(--yellow);line-height:1;}
+.billing-plan-copy{margin-top:8px;font-size:11px;line-height:1.65;color:var(--text-dim);}
+.bill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;}
+.bill-field{display:flex;flex-direction:column;gap:6px;}
+.bill-field span{font-size:9px;letter-spacing:3px;color:rgba(255,0,60,.45);}
+.bill-input{width:100%;background:rgba(255,0,60,.03);border:1px solid rgba(255,0,60,.18);padding:10px 12px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12px;}
+.bill-input:focus{outline:none;border-color:var(--cyan);}
+.method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+.method-btn{padding:11px 12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.method-btn:hover{background:rgba(255,255,255,.06);}
+.method-btn.paypal{border-color:rgba(0,229,255,.28);color:var(--cyan);}
+.method-btn.pending{opacity:.7;}
+.method-btn:disabled{opacity:.45;cursor:not-allowed;}
+.billing-hint{font-size:10px;color:var(--text-dim);line-height:1.65;margin-bottom:8px;}
+.billing-status{min-height:38px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:10px;line-height:1.6;color:var(--text-dim);margin-bottom:12px;}
+.billing-status.ok{border-color:rgba(0,255,136,.22);background:rgba(0,255,136,.05);color:var(--green);}
+.billing-status.warn{border-color:rgba(255,229,0,.22);background:rgba(255,229,0,.07);color:var(--yellow);}
+.billing-status.err{border-color:rgba(255,0,60,.26);background:rgba(255,0,60,.08);color:var(--text);}
+.wfooter{margin-top:12px;font-size:9px;color:rgba(232,224,208,.25);text-align:center;letter-spacing:1px;}
+
+/* CHAT */
+#cs{flex:1;display:none;flex-direction:row;height:100vh;min-height:0;min-width:0;overflow:hidden;}
+
+/* SIDEBAR */
+.sb{width:var(--sw);background:var(--bg3);border-right:1px solid rgba(255,0,60,.2);display:flex;flex-direction:column;flex-shrink:0;transition:width .25s;overflow:hidden;}
+.sb.col{width:0;}
+.sb-hd{padding:12px 12px 8px;border-bottom:1px solid rgba(255,0,60,.15);flex-shrink:0;}
+.sb-title{font-size:9px;color:var(--red);letter-spacing:3px;margin-bottom:2px;}
+.sb-sub{font-size:8px;color:var(--text-dim);letter-spacing:1px;}
+.sb-new{width:100%;margin-top:8px;background:rgba(255,0,60,.07);border:1px solid rgba(255,0,60,.2);padding:7px 10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;}
+.sb-new:hover{background:rgba(255,0,60,.14);color:var(--text);border-color:var(--red);}
+.sb-sec{font-size:8px;color:rgba(255,0,60,.3);letter-spacing:3px;padding:8px 12px 3px;flex-shrink:0;}
+.sb-list{flex:1;overflow-y:auto;padding:0 6px 6px;}
+.sb-list::-webkit-scrollbar{width:2px;}
+.sb-list::-webkit-scrollbar-thumb{background:rgba(255,0,60,.2);}
+.ci{padding:7px 8px;cursor:pointer;border-left:2px solid transparent;margin-bottom:2px;transition:all .15s;position:relative;}
+.ci:hover{background:rgba(255,0,60,.06);border-left-color:rgba(255,0,60,.3);}
+.ci.act{background:rgba(255,0,60,.1);border-left-color:var(--red);}
+.ci-mode{font-size:8px;letter-spacing:1px;margin-bottom:1px;opacity:.6;}
+.ci-mode.ai{color:var(--red);}.ci-mode.gm{color:var(--purple);}.ci-mode.dev{color:var(--cyan);}
+.ci-title{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:175px;}
+.ci-time{font-size:8px;color:var(--text-dim);margin-top:1px;}
+.ci-del{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,0,60,.25);cursor:pointer;font-size:11px;display:none;padding:2px;}
+.ci:hover .ci-del{display:block;}
+.ci-del:hover{color:var(--red);}
+.sb-ft{padding:8px 12px;border-top:1px solid rgba(255,0,60,.15);flex-shrink:0;}
+.sb-drive{font-size:9px;margin-bottom:5px;letter-spacing:1px;}
+.sb-drive.on{color:var(--green);}.sb-drive.off{color:var(--text-dim);}
+.sb-out{width:100%;background:none;border:1px solid rgba(255,0,60,.2);padding:5px;color:rgba(255,0,60,.4);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .15s;}
+.sb-out:hover{border-color:var(--red);color:var(--red);}
+
+/* MAIN */
+.ma{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;}
+.hd{height:52px;border-bottom:2px solid var(--red);background:var(--bg2);display:flex;align-items:stretch;flex-shrink:0;}
+.sb-tog{background:none;border:none;border-right:1px solid rgba(255,0,60,.2);padding:0 13px;color:var(--text-dim);cursor:pointer;font-size:16px;transition:all .15s;flex-shrink:0;}
+.sb-tog:hover{background:rgba(255,0,60,.06);color:var(--red);}
+.hl{background:var(--red);padding:0 13px;display:flex;align-items:center;gap:7px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 100%,0 100%);padding-right:22px;}
+.hl-txt{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#000;letter-spacing:5px;}
+.hi{flex:1;display:flex;align-items:center;padding:0 13px;gap:9px;min-width:0;}
+.ht{font-size:9px;color:var(--text-dim);letter-spacing:2px;border-left:1px solid rgba(255,0,60,.2);padding-left:9px;white-space:nowrap;}
+.mt{font-size:9px;letter-spacing:2px;border-left:1px solid rgba(255,0,60,.2);padding-left:9px;white-space:nowrap;transition:color .3s;}
+.drive-badge{font-size:9px;padding:2px 8px;letter-spacing:2px;border:1px solid;display:none;cursor:pointer;}
+.drive-badge.on{color:var(--green);border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.06);cursor:default;}
+.drive-badge.off{color:rgba(0,229,255,.5);border-color:rgba(0,229,255,.25);background:rgba(0,229,255,.04);}
+.drive-badge.off:hover{border-color:var(--cyan);color:var(--cyan);}
+.hr2{display:flex;align-items:center;gap:5px;padding-right:11px;flex-shrink:0;}
+.sd{width:7px;height:7px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:bl 2s ease-in-out infinite;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
+.hb{background:none;border:1px solid rgba(255,0,60,.3);padding:4px 7px;color:rgba(255,0,60,.5);font-size:9px;cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:1px;transition:all .2s;clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));}
+.hb:hover{border-color:var(--red);color:var(--red);}
+
+.mbar{display:flex;border-bottom:1px solid rgba(255,0,60,.15);background:var(--bg2);flex-shrink:0;}
+.mb-btn{flex:1;padding:9px;background:transparent;border:none;border-right:1px solid rgba(255,0,60,.1);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .2s;position:relative;display:flex;align-items:center;justify-content:center;gap:5px;}
+.mb-btn::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;transform:scaleX(0);transition:transform .2s;}
+.mb-btn:last-child{border-right:none;}.mb-btn.act{color:var(--text);}.mb-btn.act::after{transform:scaleX(1);}
+.mb-btn[data-m="ai"].act{background:rgba(255,0,60,.06);color:var(--red);}.mb-btn[data-m="ai"]::after{background:var(--red);}
+.mb-btn[data-m="gm"].act{background:rgba(157,0,255,.06);color:var(--purple);}.mb-btn[data-m="gm"]::after{background:var(--purple);}
+.mb-btn[data-m="dev"].act{background:rgba(0,229,255,.06);color:var(--cyan);}.mb-btn[data-m="dev"]::after{background:var(--cyan);}
+
+.qa{display:flex;border-bottom:1px solid rgba(255,0,60,.1);background:var(--bg2);flex-shrink:0;overflow-x:auto;}
+.qa::-webkit-scrollbar{height:0;}
+.qa-b{padding:8px 13px;background:transparent;border:none;border-right:1px solid rgba(255,0,60,.08);color:var(--text-dim);font-size:10px;font-family:'Share Tech Mono',monospace;cursor:pointer;white-space:nowrap;letter-spacing:1px;transition:all .15s;position:relative;}
+.qa-b::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--red);transform:scaleX(0);transition:transform .2s;}
+.qa-b:hover{background:rgba(255,0,60,.05);color:var(--text);}.qa-b:hover::after{transform:scaleX(1);}
+.qa-b.drive{color:rgba(0,255,136,.72);}
+.qa-b.drive::after{background:var(--green);}
+.qa-b.web{color:rgba(0,229,255,.72);}
+.qa-b.web::after{background:var(--cyan);}
+.qa-b.pay{color:rgba(255,229,0,.75);}
+.qa-b.pay::after{background:var(--yellow);}
+
+.assist-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,0,60,.12);background:linear-gradient(90deg,rgba(255,0,60,.05),rgba(0,229,255,.02));flex-shrink:0;flex-wrap:wrap;}
+.assist-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.assist-chip{padding:7px 10px;border:1px solid rgba(255,0,60,.2);background:transparent;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .15s;}
+.assist-chip:hover{border-color:var(--red);color:var(--text);}
+.assist-chip.on{background:rgba(255,0,60,.08);border-color:rgba(255,0,60,.35);color:var(--text);}
+.assist-chip.web.on{background:rgba(0,229,255,.08);border-color:rgba(0,229,255,.35);color:var(--cyan);}
+.assist-note{font-size:9px;color:var(--text-dim);letter-spacing:1px;line-height:1.6;max-width:520px;}
+
+#msgs{flex:1;overflow-y:auto;padding:15px 18px;display:flex;flex-direction:column;}
+#msgs::-webkit-scrollbar{width:3px;}
+#msgs::-webkit-scrollbar-thumb{background:rgba(255,0,60,.2);}
+.mr{display:flex;margin-bottom:11px;animation:si .22s ease-out;}
+.mr.user{justify-content:flex-end;}
+.av{width:30px;height:30px;flex-shrink:0;margin-right:9px;display:flex;align-items:center;justify-content:center;font-size:14px;align-self:flex-end;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);}
+.av.ai{background:var(--red);box-shadow:0 0 10px rgba(255,0,60,.4);}
+.av.gm{background:var(--purple);box-shadow:0 0 10px rgba(157,0,255,.4);}
+.av.dev{background:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.4);}
+.mb2{max-width:74%;padding:10px 14px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.mr.assistant .mb2{background:rgba(255,255,255,.03);color:var(--text);}
+.mr.assistant.m-ai .mb2{border-left:2px solid var(--red);border-bottom:1px solid rgba(255,0,60,.1);}
+.mr.assistant.m-gm .mb2{border-left:2px solid var(--purple);border-bottom:1px solid rgba(157,0,255,.1);}
+.mr.assistant.m-dev .mb2{border-left:2px solid var(--cyan);border-bottom:1px solid rgba(0,229,255,.1);}
+.mr.user .mb2{background:rgba(0,229,255,.05);border-right:2px solid var(--cyan);border-top:1px solid rgba(0,229,255,.15);color:var(--cyan);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.source-note{margin-top:7px;padding:8px 10px;border-left:2px solid rgba(0,229,255,.45);background:rgba(0,229,255,.04);font-size:10px;line-height:1.55;color:rgba(0,229,255,.85);white-space:pre-wrap;max-width:74%;}
+
+/* File preview in chat */
+.msg-img{max-width:240px;max-height:180px;border:1px solid rgba(255,0,60,.3);margin-bottom:6px;display:block;}
+.msg-file{background:rgba(255,0,60,.06);border-left:2px solid var(--red);padding:7px 11px;font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+
+.trow{display:flex;align-items:flex-end;gap:9px;margin-bottom:11px;animation:si .22s ease-out;}
+.tb{background:rgba(255,255,255,.03);padding:12px 15px;display:flex;gap:5px;align-items:center;}
+.tb.ai{border-left:2px solid var(--red);}.tb.gm{border-left:2px solid var(--purple);}.tb.dev{border-left:2px solid var(--cyan);}
+.td{width:6px;height:6px;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);animation:bl 1.2s ease-in-out infinite;}
+.td.ai{background:var(--red);}.td.gm{background:var(--purple);}.td.dev{background:var(--cyan);}
+.td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
+
+/* Input area */
+.ia{padding:9px 15px 12px;border-top:2px solid rgba(255,0,60,.2);background:var(--bg2);flex-shrink:0;transition:border-color .3s;}
+.ia.m-gm{border-color:rgba(157,0,255,.3);}.ia.m-dev{border-color:rgba(0,229,255,.3);}
+.il{font-size:9px;color:rgba(255,0,60,.35);letter-spacing:3px;margin-bottom:4px;transition:color .3s;}
+.ia.m-gm .il{color:rgba(157,0,255,.4);}.ia.m-dev .il{color:rgba(0,229,255,.4);}
+
+/* File preview bar */
+.file-preview{display:none;align-items:center;gap:8px;padding:6px 12px;background:rgba(255,0,60,.06);border:1px solid rgba(255,0,60,.2);margin-bottom:7px;}
+.file-preview.show{display:flex;}
+.file-preview-img{width:36px;height:36px;object-fit:cover;border:1px solid rgba(255,0,60,.3);}
+.file-preview-name{font-size:11px;color:var(--text-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-preview-rm{background:none;border:none;color:rgba(255,0,60,.5);cursor:pointer;font-size:14px;flex-shrink:0;}
+.file-preview-rm:hover{color:var(--red);}
+
+.ir{display:flex;gap:7px;align-items:flex-end;}
+.iw{flex:1;background:rgba(255,0,60,.03);border-bottom:2px solid rgba(255,0,60,.3);padding:8px 12px;transition:border-color .2s;}
+.iw:focus-within{border-color:var(--cyan);}
+#mi{width:100%;background:transparent;border:none;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;line-height:1.5;resize:none;caret-color:var(--red);max-height:100px;overflow-y:auto;}
+#mi:focus{outline:none;}
+#mi::placeholder{color:rgba(255,0,60,.2);}
+.input-btns{display:flex;gap:5px;flex-shrink:0;}
+.attach-btn{width:42px;height:42px;background:rgba(255,0,60,.08);border:1px solid rgba(255,0,60,.25);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.attach-btn:hover{background:rgba(255,0,60,.18);border-color:var(--red);}
+.snd{width:44px;height:42px;background:var(--red);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.snd:hover{background:var(--yellow);}.snd:disabled{opacity:.3;cursor:not-allowed;}
+.snd.gm{background:var(--purple);}.snd.dev{background:var(--cyan);color:#000;}
+.ift{text-align:center;margin-top:5px;font-size:9px;color:rgba(255,0,60,.15);letter-spacing:2px;}
+
+/* UPLOAD MODAL */
+.modal-ov{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;}
+.modal-ov.show{display:flex;}
+.modal{width:100%;max-width:520px;margin:16px;background:var(--bg2);border:1px solid var(--cyan);clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px));animation:fu .28s ease-out;position:relative;}
+.modal::before{content:'';position:absolute;top:0;right:0;width:26px;height:26px;background:var(--cyan);clip-path:polygon(100% 0,0 0,100% 100%);}
+.modal-inner{padding:24px 24px 20px;}
+.modal-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:4px;margin-bottom:3px;}
+.modal-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:16px;}
+.modal-file{background:rgba(0,229,255,.06);border-left:2px solid var(--cyan);padding:9px 13px;margin-bottom:14px;font-size:12px;color:var(--cyan);word-break:break-all;}
+.bc{display:flex;align-items:center;background:rgba(0,0,0,.3);border:1px solid rgba(0,229,255,.15);padding:7px 11px;margin-bottom:10px;flex-wrap:wrap;gap:2px;min-height:34px;}
+.bc-item{font-size:11px;color:var(--cyan);cursor:pointer;padding:1px 3px;transition:color .15s;}
+.bc-item:hover{color:var(--yellow);text-decoration:underline;}
+.bc-sep{font-size:10px;color:rgba(0,229,255,.3);margin:0 2px;}
+.bc-cur{font-size:11px;color:var(--text);padding:1px 3px;}
+.fl{background:rgba(0,0,0,.2);border:1px solid rgba(0,229,255,.15);max-height:170px;overflow-y:auto;margin-bottom:12px;}
+.fl::-webkit-scrollbar{width:3px;}
+.fl::-webkit-scrollbar-thumb{background:rgba(0,229,255,.2);}
+.fi{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;border-bottom:1px solid rgba(0,229,255,.07);transition:background .15s;}
+.fi:last-child{border-bottom:none;}.fi:hover{background:rgba(0,229,255,.06);}
+.fi-name{font-size:12px;color:var(--text);display:flex;align-items:center;gap:7px;}
+.fi-arr{font-size:10px;color:rgba(0,229,255,.3);}.fi:hover .fi-arr{color:var(--cyan);}
+.fl-empty{padding:14px;font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:1px;}
+.fl-load{padding:14px;font-size:10px;color:var(--text-dim);letter-spacing:2px;text-align:center;}
+.dest{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.25);border-left:3px solid var(--green);padding:8px 12px;margin-bottom:14px;font-size:11px;color:var(--green);letter-spacing:1px;}
+.dest-l{font-size:9px;color:rgba(0,255,136,.4);letter-spacing:3px;margin-bottom:3px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btn{flex:1;padding:11px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;cursor:pointer;border:none;transition:all .15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.modal-btn.ok{background:var(--cyan);color:#000;}.modal-btn.ok:hover{background:var(--yellow);}
+.modal-btn.cancel{background:transparent;border:1px solid rgba(255,0,60,.3);color:var(--text-dim);}.modal-btn.cancel:hover{border-color:var(--red);color:var(--text);}
+
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr;}
+  .feat-grid{grid-template-columns:1fr;}
+}
+
+@media (max-width:720px){
+  .wbi{padding:24px 20px 22px;}
+  .wt{font-size:42px;letter-spacing:6px;}
+  .cta-row{flex-direction:column;}
+  .billing-actions{grid-template-columns:1fr;}
+  .bill-grid,.method-grid{grid-template-columns:1fr;}
+  .assist-bar{align-items:flex-start;}
+  .assist-note{max-width:none;}
+  .mb2,.source-note{max-width:86%;}
+}
+
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes si{from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes gl{0%,100%{text-shadow:3px 0 var(--red),-1px 0 var(--cyan)}33%{text-shadow:-3px 0 var(--red),1px 0 var(--cyan)}66%{text-shadow:2px 0 var(--yellow),-2px 0 var(--red)}}
+</style>
+</head>
+<body>
+<div class="vig"></div>
+<div class="brk tl"></div><div class="brk tr"></div><div class="brk bl"></div><div class="brk br"></div>
+<div class="vtg tl">SYS.V3.2</div><div class="vtg tr">NET::ACTIVE</div>
+<div class="vtg bl">AI::FREE</div><div class="vtg br">VISION::ON</div>
+
+<!-- Upload to Drive Modal -->
+<div class="modal-ov" id="upload-modal">
+  <div class="modal"><div class="modal-inner">
+    <div class="modal-title">// UPLOAD FILE</div>
+    <div class="modal-sub">NAVEGA HASTA LA CARPETA DESTINO</div>
+    <div class="modal-file" id="modal-file">[FILE] archivo</div>
+    <div class="bc" id="modal-bc"></div>
+    <div class="fl" id="modal-fl"><div class="fl-load">// CARGANDO...</div></div>
+    <div class="dest"><div class="dest-l">// DESTINO ACTUAL</div><span id="dest-txt">raiz</span></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeUpload()">[ CANCELAR ]</button>
+      <button class="modal-btn ok" onclick="confirmUpload()">[ SUBIR AQUI ]</button>
+    </div>
+  </div></div>
+</div>
+
+<div class="modal-ov" id="billing-modal">
+  <div class="modal billing-modal"><div class="modal-inner">
+    <div class="modal-title">// NEXUS CHECKOUT</div>
+    <div class="modal-sub">SUSCRIPCIONES, COBRO Y REGISTRO EN BASE DE DATOS</div>
+    <div class="billing-summary">
+      <div class="panel-kicker">// PLAN SELECCIONADO</div>
+      <div class="billing-plan">
+        <div class="billing-plan-name" id="billing-plan-name">PRO</div>
+      <div class="billing-plan-price" id="billing-plan-price">$12 USD</div>
+      </div>
+      <div class="billing-plan-copy" id="billing-plan-copy">Checkout listo para PayPal en dolares y registro de suscripciones en base de datos.</div>
+    </div>
+    <div class="bill-grid">
+      <label class="bill-field">
+        <span>// NOMBRE</span>
+        <input class="bill-input" id="billing-name" type="text" placeholder="Tu nombre o empresa"/>
+      </label>
+      <label class="bill-field">
+        <span>// EMAIL</span>
+        <input class="bill-input" id="billing-email" type="email" placeholder="correo@dominio.com"/>
+      </label>
+    </div>
+    <div class="billing-hint">NEXUS intenta registrar la suscripcion en el backend y, si el servidor no responde, abre PayPal directo con el monto exacto del plan.</div>
+    <div class="method-grid">
+      <button class="method-btn paypal" id="method-paypal" onclick="startCheckout('paypal')">PAYPAL</button>
+      <button class="method-btn" id="method-help" onclick="explainSelectedPlan()">EXPLICAR PLAN</button>
+    </div>
+    <div class="billing-status" id="billing-status">Elige PayPal para crear el checkout.</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeBillingModal()">[ CERRAR ]</button>
+      <button class="modal-btn ok" onclick="startBillingFlow('overview')">[ VER ESTRATEGIA ]</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- File inputs -->
+<input type="file" id="file-input" style="display:none" onchange="openUpload(this)"/>
+<input type="file" id="chat-file-input" style="display:none" accept="image/*,.pdf,.txt,.csv,.json,.js,.py,.java,.html,.css,.md,.docx" onchange="handleChatFile(this)"/>
+
+<div id="app">
+  <!-- WELCOME -->
+  <div id="ws">
+    <div class="wb">
+      <div class="wbi hero-grid">
+        <div class="hero-main">
+          <div class="wsl">// NEXUS FINAL PRODUCT CANDIDATE</div>
+          <div class="wt">NEXUS</div>
+          <div class="ws2">WEB LIVE · PDF FAST · DRIVE · SUBSCRIPTION READY</div>
+          <div class="wv">Una version final mucho mas pro para presentar el producto: mejores respuestas sobre personajes y temas especificos, lectura de PDF mas rapida, busqueda web en tiempo real, soporte multilenguaje y un modelo de suscripcion listo para vender.</div>
+          <div class="launch-row">
+            <span class="launch-chip">Respuestas mas precisas</span>
+            <span class="launch-chip">Investigacion en tiempo real</span>
+            <span class="launch-chip">PDF Express</span>
+            <span class="launch-chip">Soporte multilenguaje</span>
+            <span class="launch-chip">Google Drive integrado</span>
+          </div>
+          <div class="feat-grid">
+            <div class="feat-card">
+              <div class="feat-head">// PERSONAJES Y TEMAS</div>
+              <div class="feat-copy"><strong>Mas contexto, menos inventos</strong>Respuestas mejor estructuradas para personajes, historia, ciencia, marcas, obras y consultas especificas.</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-head">// PDF FAST</div>
+              <div class="feat-copy"><strong>Vista rapida lista para preguntar</strong>Los PDFs se leen en modo express para reducir la espera y responder antes.</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-head">// WEB LIVE</div>
+              <div class="feat-copy"><strong>Busqueda web en tiempo real</strong>Activa fuentes recientes cuando el tema necesita actualidad, comparacion o verificacion externa.</div>
+            </div>
+            <div class="feat-card">
+              <div class="feat-head">// MONETIZACION</div>
+              <div class="feat-copy"><strong>Listo para vender</strong>La propuesta ya muestra valor claro, planes y diferenciadores para una revision mas seria del producto.</div>
+            </div>
+          </div>
+          <div class="cta-row">
+            <button class="start-btn" onclick="startFree()">PROBAR NEXUS GRATIS</button>
+            <button class="drive-btn" onclick="startWithDrive()">PROBAR + CONECTAR DRIVE</button>
+          </div>
+          <div class="wfooter">// Demo lista para review de producto · sin registro obligatorio</div>
+        </div>
+        <div class="hero-side">
+          <div class="mini-panel">
+            <div class="panel-kicker">// VERSION FINAL</div>
+            <div class="panel-title">Que cambia en esta entrega</div>
+            <div class="point-list">
+              <div class="point-item"><div class="point-num">01</div><div class="point-text"><strong>Modo preciso</strong>Mejora la calidad de respuestas para consultas delicadas o muy especificas.</div></div>
+              <div class="point-item"><div class="point-num">02</div><div class="point-text"><strong>Web Live</strong>Permite enriquecer respuestas con resultados recientes y citarlos cuando haga falta.</div></div>
+              <div class="point-item"><div class="point-num">03</div><div class="point-text"><strong>PDF Express</strong>Analiza primero una vista rapida del documento para contestar sin tanta demora.</div></div>
+              <div class="point-item"><div class="point-num">04</div><div class="point-text"><strong>Presentacion premium</strong>Ya se siente como producto, no solo como demo tecnica.</div></div>
+            </div>
+          </div>
+          <div class="mini-panel">
+            <div class="panel-kicker">// MODELO DE SUSCRIPCION</div>
+            <div class="panel-title">Listo para monetizar</div>
+            <div class="price-grid">
+              <div class="plan-card">
+                <div class="plan-tier">FREE</div>
+                <div class="plan-price">$0<span> USD/mes</span></div>
+                <div class="plan-copy">Entrada para captar usuarios y demostrar valor inmediato.</div>
+                <div class="plan-list">
+                  <span>Chat general, Game Master e Ingeniero</span>
+                  <span>Archivos, imagenes y PDF Express</span>
+                  <span>Google Drive opcional</span>
+                </div>
+                <button class="plan-btn" onclick="startPlanFlow('free')">EMPEZAR GRATIS</button>
+              </div>
+              <div class="plan-card featured">
+                <div class="plan-tier">PRO</div>
+                <div class="plan-price">$12<span> USD/mes</span></div>
+                <div class="plan-copy">Plan principal para vender la promesa fuerte del producto.</div>
+                <div class="plan-list">
+                  <span>Web Live y mayor precision para consultas delicadas</span>
+                  <span>PDF Express con prioridad y sesiones mas largas</span>
+                  <span>Ideal para estudio, trabajo y productividad diaria</span>
+                </div>
+                <button class="plan-btn" onclick="openBillingModal('pro')">PAGAR PRO</button>
+              </div>
+              <div class="plan-card featured">
+                <div class="plan-tier">BUSINESS // PREMIUM</div>
+                <div class="plan-price">$39<span> USD/mes</span></div>
+                <div class="plan-copy">Para equipos, creadores, agencias y clientes que quieran una version realmente premium y vendible.</div>
+                <div class="plan-list">
+                  <span>Mayor limite de uso, contexto y sesiones extendidas</span>
+                  <span>Respuestas mas consistentes para personajes, marcas, nombres y temas finos</span>
+                  <span>Prioridad maxima en analisis de PDF y archivos pesados</span>
+                  <span>Flujos de trabajo compartidos para equipo o clientes</span>
+                  <span>Web Live y modo preciso como argumento comercial principal</span>
+                  <span>Onboarding, soporte prioritario y seguimiento comercial</span>
+                  <span>Ideal para vender servicios, demos premium y cuentas de alto valor</span>
+                  <span>Mejor base para cerrar clientes con cobro directo por PayPal</span>
+                </div>
+                <button class="plan-btn" onclick="openBillingModal('business')">PAGAR BUSINESS</button>
+              </div>
+            </div>
+            <div class="plan-note">Sugerencia comercial: Free para adquisicion, Pro para convertir rapido y Business como oferta premium para clientes, equipos y cuentas de mayor valor.</div>
+            <div class="billing-strip">
+              <span class="billing-pill pending" id="paypal-status">PAYPAL PENDIENTE</span>
+              <span class="billing-pill ready">GITHUB READY</span>
+            </div>
+            <div class="billing-actions">
+              <button class="plan-btn" onclick="startBillingFlow('overview')">PLANES Y COBROS</button>
+              <button class="pay-btn" onclick="startBillingFlow('paypal')">EXPLICAR PAYPAL</button>
+              <button class="pay-btn" onclick="startBillingFlow('github')">CHECKLIST GITHUB</button>
+            </div>
+            <div class="billing-note">PayPal ya quedo configurado con tu enlace publico. No hace falta subir secretos al repo para usarlo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="cs">
+    <div class="sb" id="sidebar">
+      <div class="sb-hd">
+        <div class="sb-title">// HISTORIAL</div>
+        <div class="sb-sub">Conversaciones guardadas</div>
+        <button class="sb-new" onclick="newChat()">+ NUEVA CONVERSACION</button>
+      </div>
+      <div class="sb-sec">// RECIENTES</div>
+      <div class="sb-list" id="sbl"></div>
+      <div class="sb-ft">
+        <div class="sb-drive off" id="sb-drive-status">DRIVE: NO CONECTADO</div>
+        <button class="sb-out" onclick="goHome()">[ INICIO ]</button>
+      </div>
+    </div>
+
+    <div class="ma">
+      <div class="hd">
+        <button class="sb-tog" onclick="toggleSB()">&#9776;</button>
+        <div class="hl"><span style="font-size:15px">&#9889;</span><span class="hl-txt">NEXUS</span></div>
+        <div class="hi">
+          <span class="ht">AI FREE // LLAMA</span>
+          <span class="mt" id="modet" style="color:var(--red)">// IA GENERAL</span>
+          <span class="drive-badge off" id="drive-badge" onclick="connectDrive()">CONECTAR DRIVE</span>
+        </div>
+        <div class="hr2">
+          <div class="sd"></div>
+          <button class="hb" onclick="clearChat()">[ LIMPIAR ]</button>
+        </div>
+      </div>
+
+      <div class="mbar">
+        <button class="mb-btn act" data-m="ai" onclick="setMode('ai')">AI GENERAL</button>
+        <button class="mb-btn" data-m="gm" onclick="setMode('gm')">GAME MASTER</button>
+        <button class="mb-btn" data-m="dev" onclick="setMode('dev')">INGENIERO</button>
+      </div>
+
+      <div class="assist-bar">
+        <div class="assist-actions">
+          <button class="assist-chip on" id="precision-toggle" onclick="togglePrecision()">RESPUESTA PRO</button>
+          <button class="assist-chip web" id="web-toggle" onclick="toggleWeb()">WEB LIVE</button>
+          <button class="assist-chip" id="language-toggle" onclick="chooseLanguage()">IDIOMA: AUTO</button>
+        </div>
+        <div class="assist-note" id="assist-note">Precision alta para personajes, nombres y temas especificos. Activa Web Live cuando necesites informacion reciente.</div>
+      </div>
+      <div class="qa" id="qa"></div>
+      <div id="msgs"></div>
+
+      <div class="ia" id="ia">
+        <div class="il" id="il">// CONSULTA</div>
+        <div class="file-preview" id="file-preview">
+          <img class="file-preview-img" id="fp-img" src="" style="display:none"/>
+          <span class="file-preview-name" id="fp-name"></span>
+          <button class="file-preview-rm" onclick="clearChatFile()">X</button>
+        </div>
+        <div class="ir">
+          <div class="iw"><textarea id="mi" rows="2" placeholder="Escribe aqui o adjunta un archivo..."></textarea></div>
+          <div class="input-btns">
+            <button class="attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Adjuntar foto o archivo">&#128206;</button>
+            <button class="snd" id="snd" onclick="sendMsg()">&#9654;</button>
+          </div>
+        </div>
+        <div class="ift" id="ift">NEXUS // LLAMA 3.3 70B + LLAMA 4 SCOUT // FREE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://nexus-backend-ykn2.onrender.com';
+let hist=[], loading=false, mode='ai', sbOpen=true;
+let chats=[], activeId=null;
+let driveToken=null, rootFolderId='root', rootFolderName='Mi Drive';
+let navStack=[], curFolderId='root', curFolderName='Mi Drive';
+let pendingDriveFile=null;
+let chatFileData=null; // {type:'image'|'text', content, name, mimeType}
+let precisionMode=true, webMode=false;
+let replyLanguage='auto';
+let billingConfig=null, selectedPlan='pro', billingBusy=false;
+// Solo pega aqui enlaces o datos publicos. No subas claves privadas a GitHub.
+const BILLING={
+  paypal:{
+    baseUrl:'https://www.paypal.me/asmael273',
+    proUrl:'https://www.paypal.me/asmael273/12USD',
+    businessUrl:'https://www.paypal.me/asmael273/39USD',
+    checkoutUrl:'https://www.paypal.me/asmael273',
+    subscriptionUrl:'https://www.paypal.me/asmael273'
+  }
+};
+
+const M={
+  ai:{name:'IA GENERAL',tag:'// IA GENERAL',tc:'var(--red)',icon:'N',av:'ai',
+    il:'// CONSULTA',ft:'NEXUS AI // PRECISE ANSWERS // PDF FAST',ph:'Pregunta por personajes, temas especificos o analiza un archivo...',
+    w:'NEXUS en linea. Puedo ayudarte con preguntas generales, archivos, personajes, temas especificos y tambien explicarte como vender el producto con PayPal.',
+    sys:`Eres NEXUS, un asistente premium en espanol.
+Responde con claridad, estructura y criterio. Si la consulta trata de personajes, hechos, historia, ciencia, empresas o temas especificos, prioriza exactitud y evita inventar.
+Antes de responder sobre una persona, personaje, obra, saga o franquicia, identifica con exactitud el nombre, la obra y el contexto. Si hay nombres parecidos o ambiguedad, pide una aclaracion breve en vez de asumir. Nunca cambies un personaje por otro mas famoso o parecido.
+Si hablas de un personaje, deja claro desde el inicio a quien identificaste y de que universo o franquicia viene. Si no puedes identificarlo con seguridad, dilo y pregunta.
+Si no estas seguro, dilo. Si el usuario adjunta archivos o imagenes, usalos como contexto util.`,
+    qa:[
+      {l:'Idea creativa',p:'Dame una idea creativa para un proyecto o producto.'},
+      {l:'Resumir',p:'Ayudame a resumir un texto de forma clara y ordenada.'},
+      {l:'Explicar',p:'Explicame un concepto dificil de forma simple y precisa.'},
+      {l:'Analizar',p:'Ayudame a analizar una situacion, tema o decision.'},
+      {l:'Redactar',p:'Ayudame a redactar un texto profesional, claro y convincente.'},
+      {l:'Matematicas',p:'Ayudame con un problema de matematicas paso a paso.'},
+      {l:'Personaje',p:'Analiza este personaje con exactitud, identifica su obra o universo y evita confundirlo con otros nombres parecidos.'},
+      {l:'PDF rapido',p:'Resume este PDF y dime los hallazgos mas importantes.'},
+      {l:'Web Live',p:'Investiga este tema con informacion reciente y cita las fuentes mas relevantes.',web:true,kind:'web'},
+      {l:'Pagos',p:'Explicame la estrategia de planes, checkout y cobros de NEXUS.',kind:'pay'},
+      {l:'PayPal',p:'Explicame como conectar PayPal a NEXUS sin exponer claves en GitHub y como aprovechar el enlace publico ya configurado.',kind:'pay'}
+    ]},
+  gm:{name:'GAME MASTER',tag:'// GAME MASTER',tc:'var(--purple)',icon:'G',av:'gm',
+    il:'// ACCION DEL JUGADOR',ft:'NEXUS GM // STORYTELLING MODE',ph:'Que hace tu personaje?',
+    w:'El modo Game Master esta listo para aventuras, NPCs, combate y narrativa inmersiva.',
+    sys:`Eres NEXUS en modo Game Master.
+Narras en segunda persona, mantienes ritmo cinematografico y presentas opciones claras para continuar.
+Si hay tiradas, usa el formato [TIRADA: 1d20 = X]. Respondes en espanol.`,
+    qa:[
+      {l:'Aventura nueva',p:'Quiero empezar una aventura nueva.'},
+      {l:'Crear mundo',p:'Crea un mundo unico para nuestra campana.'},
+      {l:'Combate',p:'Genera un encuentro de combate emocionante.'},
+      {l:'Dungeon',p:'Crea un dungeon misterioso.'},
+      {l:'Lore',p:'Cuentame el trasfondo del mundo.'},
+      {l:'NPC',p:'Crea un NPC interesante.'}
+    ]},
+  dev:{name:'INGENIERO',tag:'// INGENIERO',tc:'var(--cyan)',icon:'D',av:'dev',
+    il:'// CONSULTA TECNICA',ft:'NEXUS DEV // CODE, DEBUG AND ARCHITECTURE',ph:'Describe tu problema o adjunta codigo para revisarlo...',
+    w:'Modo Ingeniero activado. Puedo ayudarte con codigo, debugging, arquitectura y revision tecnica de archivos.',
+    sys:`Eres NEXUS en modo Ingeniero.
+Actuas como un developer senior: explicas con precision, das pasos accionables y entregas codigo en bloques con lenguaje cuando haga falta.
+Si revisas codigo, senala riesgos, bugs y mejoras concretas. Respondes en espanol.`,
+    qa:[
+      {l:'Debug',p:'Tengo un bug, ayudame a encontrar la causa.'},
+      {l:'Optimizar',p:'Optimiza este codigo y explica por que mejora.'},
+      {l:'Arquitectura',p:'Disena la arquitectura de mi proyecto.'},
+      {l:'Explicar',p:'Explicame este concepto tecnico de forma simple.'},
+      {l:'Convertir',p:'Convierte este codigo a otro lenguaje.'},
+      {l:'Revisar',p:'Revisa mi codigo y dame feedback claro.'},
+      {l:'GitHub',p:'Hazme un checklist corto para subir este proyecto a GitHub y publicarlo sin secretos.',kind:'pay'}
+    ]}
+};
+
+window.onload=()=>{
+  const sc=localStorage.getItem('nexus_chats');
+  if(sc)try{chats=JSON.parse(sc);}catch(e){}
+  replyLanguage=localStorage.getItem('nexus_reply_language')||'auto';
+  loadBillingConfig();
+  const params=new URLSearchParams(window.location.search);
+  const dt=params.get('drive_token');
+  if(dt){
+    driveToken=decodeURIComponent(dt);
+    localStorage.setItem('nexus_drive_token',driveToken);
+    window.history.replaceState({},'',window.location.pathname);
+    renderLanguageState();
+    renderFeatureState();
+    startFree();
+    updateDriveStatus(true);
+    setTimeout(()=>addMsg('assistant','Google Drive conectado. Ahora puedes subir, buscar y organizar tus archivos desde NEXUS.',mode,false),500);
+    return;
+  }
+  const savedToken=localStorage.getItem('nexus_drive_token');
+  if(savedToken)driveToken=savedToken;
+  document.getElementById('mi').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}ar(e.target);});
+  renderLanguageState();
+  renderFeatureState();
+  updateBillingStatus();
+  handleBillingReturnState();
+};
+
+function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function getBillingPlan(planCode){
+  const fallback={
+    free:{code:'free',name:'FREE',display_price:'$0 USD',description:'Entrada gratis para probar NEXUS.'},
+    pro:{code:'pro',name:'PRO',display_price:'$12 USD',description:'Plan mensual para trabajo, estudio y productividad con mejor precision.'},
+    business:{code:'business',name:'BUSINESS',display_price:'$39 USD',description:'Plan mensual premium para equipos, clientes y uso avanzado con prioridad maxima.'}
+  };
+  return (billingConfig?.plans||[]).find(p=>p.code===planCode)||fallback[planCode]||fallback.pro;
+}
+function getLocalBillingLink(method,planCode){
+  if(method==='paypal'){
+    const plan=(planCode||selectedPlan||'pro').toLowerCase();
+    if(plan==='business'&&BILLING.paypal.businessUrl)return BILLING.paypal.businessUrl;
+    if(plan==='pro'&&BILLING.paypal.proUrl)return BILLING.paypal.proUrl;
+    return BILLING.paypal.subscriptionUrl||BILLING.paypal.checkoutUrl||BILLING.paypal.baseUrl||'';
+  }
+  return '';
+}
+function storeLocalBillingAttempt(planCode,method,customerName,customerEmail,checkoutUrl){
+  try{
+    const key='nexus_billing_attempts';
+    const current=JSON.parse(localStorage.getItem(key)||'[]');
+    current.unshift({
+      id:`local_${Date.now().toString(36)}`,
+      plan_code:planCode,
+      payment_method:method,
+      customer_name:customerName||'',
+      customer_email:customerEmail||'',
+      checkout_url:checkoutUrl,
+      status:'redirected_local',
+      created_at:new Date().toISOString()
+    });
+    localStorage.setItem(key,JSON.stringify(current.slice(0,25)));
+  }catch(e){}
+}
+function reserveCheckoutWindow(){
+  const popup=window.open('about:blank','_blank');
+  if(!popup)return null;
+  try{
+    popup.document.write('<title>NEXUS Checkout</title><body style="margin:0;background:#0a0a0e;color:#e8e0d0;font-family:monospace;display:flex;align-items:center;justify-content:center;min-height:100vh;letter-spacing:1px;">Conectando con PayPal...</body>');
+    popup.document.close();
+  }catch(e){}
+  return popup;
+}
+function openCheckoutWindow(url,popup){
+  if(popup && !popup.closed){
+    try{
+      popup.location.replace(url);
+      popup.focus();
+      return true;
+    }catch(e){}
+  }
+  const win=window.open(url,'_blank','noopener');
+  if(win)return true;
+  window.location.href=url;
+  return true;
+}
+function closeCheckoutWindow(popup){
+  try{
+    if(popup && !popup.closed)popup.close();
+  }catch(e){}
+}
+function openLocalBillingFallback(method,customerName,customerEmail,popup){
+  const fallbackUrl=getLocalBillingLink(method,selectedPlan);
+  if(!fallbackUrl)return false;
+  storeLocalBillingAttempt(selectedPlan,method,customerName,customerEmail,fallbackUrl);
+  setBillingStatusMessage('Backend no disponible. Abriendo PayPal directo con el monto del plan...', 'warn');
+  openCheckoutWindow(fallbackUrl,popup);
+  if(document.getElementById('ws').style.display!=='none')startFree();
+  setTimeout(()=>addMsg('assistant',`Abrimos PayPal directo para ${selectedPlan.toUpperCase()} porque el backend no respondio. El cobro sigue disponible con tu enlace PayPal.Me.`,mode,false),500);
+  setTimeout(()=>closeBillingModal(),450);
+  return true;
+}
+function getBillingMethodConfig(method){
+  return (billingConfig?.methods||[]).find(item=>item.code===method)||null;
+}
+function setBillingStatusMessage(message,kind){
+  const box=document.getElementById('billing-status');
+  if(!box)return;
+  box.textContent=message;
+  box.className='billing-status'+(kind?` ${kind}`:'');
+}
+function renderBillingMethodButtons(){
+  ['paypal'].forEach(code=>{
+    const button=document.getElementById(`method-${code}`);
+    if(!button)return;
+    const cfg=getBillingMethodConfig(code);
+    const localReady=!!(BILLING.paypal.subscriptionUrl||BILLING.paypal.checkoutUrl);
+    const enabled=cfg?!!cfg.enabled:localReady;
+    button.classList.toggle('pending',!enabled);
+    button.title=enabled?'Metodo disponible o listo para configurar.':'Falta terminar la configuracion de este metodo.';
+  });
+}
+function updateBillingStatus(){
+  const paypal=document.getElementById('paypal-status');
+  const paypalReady=!!(BILLING.paypal.subscriptionUrl||BILLING.paypal.checkoutUrl||getBillingMethodConfig('paypal')?.enabled);
+  if(paypal){
+    paypal.textContent=paypalReady?'PAYPAL LISTO':'PAYPAL PENDIENTE';
+    paypal.className=`billing-pill ${paypalReady?'ready':'pending'}`;
+  }
+  renderBillingMethodButtons();
+}
+function getLanguageLabel(){
+  return replyLanguage==='auto'?'AUTO':replyLanguage.toUpperCase();
+}
+function getLanguageSystemPrompt(){
+  if(replyLanguage==='auto')return 'Responde en el mismo idioma que use el usuario en su ultimo mensaje. Si mezcla idiomas, prioriza el idioma principal.';
+  return `Responde en ${replyLanguage}. Mantiene nombres propios, titulos, codigo y citas en su forma original salvo que el usuario pida traducirlos.`;
+}
+function renderLanguageState(){
+  const button=document.getElementById('language-toggle');
+  if(button){
+    button.textContent=`IDIOMA: ${getLanguageLabel()}`;
+    button.classList.toggle('on',replyLanguage!=='auto');
+  }
+}
+function chooseLanguage(){
+  const current=replyLanguage==='auto'?'':replyLanguage;
+  const value=prompt('// IDIOMA DE RESPUESTA:\nEscribe cualquier idioma.\nEjemplos: English, Portugues, Arabic, Japanese, Deutsch.\nDeja vacio o escribe AUTO para detectar automaticamente.',current);
+  if(value===null)return;
+  const next=(value||'').trim();
+  replyLanguage=!next||next.toLowerCase()==='auto'?'auto':next;
+  localStorage.setItem('nexus_reply_language',replyLanguage);
+  renderLanguageState();
+  renderFeatureState();
+}
+async function loadBillingConfig(){
+  try{
+    const res=await fetch(`${BACKEND}/billing/config`);
+    if(!res.ok)return;
+    billingConfig=await res.json();
+    updateBillingStatus();
+  }catch(e){}
+}
+function openBillingModal(plan){
+  if(plan==='free'){
+    startFree();
+    return;
+  }
+  selectedPlan=plan||'pro';
+  const planData=getBillingPlan(selectedPlan);
+  document.getElementById('billing-plan-name').textContent=planData.name||selectedPlan.toUpperCase();
+  document.getElementById('billing-plan-price').textContent=planData.display_price||'Pendiente';
+  document.getElementById('billing-plan-copy').textContent=planData.description||'Checkout listo para registrar pagos y suscripciones.';
+  document.getElementById('billing-modal').classList.add('show');
+  updateBillingStatus();
+  setBillingStatusMessage('Elige PayPal para crear el checkout y registrar la suscripcion.', '');
+}
+function closeBillingModal(){
+  billingBusy=false;
+  document.getElementById('billing-modal').classList.remove('show');
+  setBillingStatusMessage('Elige PayPal para crear el checkout.', '');
+}
+function explainSelectedPlan(){
+  closeBillingModal();
+  startBillingFlow(selectedPlan==='business'?'business':'pro');
+}
+async function startCheckout(method){
+  if(billingBusy)return;
+  const customer_name=(document.getElementById('billing-name').value||'').trim();
+  const customer_email=(document.getElementById('billing-email').value||'').trim();
+  const checkoutWindow=reserveCheckoutWindow();
+  billingBusy=true;
+  setBillingStatusMessage('Creando checkout y registrando la suscripcion...', 'warn');
+  try{
+    const override_url=getLocalBillingLink(method,selectedPlan);
+    const res=await fetch(`${BACKEND}/billing/checkout`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({plan:selectedPlan,payment_method:method,customer_name,customer_email,override_url})
+    });
+    let data={};
+    try{data=await res.json();}catch(e){}
+    if(data.billing)billingConfig=data.billing;
+    updateBillingStatus();
+
+    if(!res.ok){
+      if(openLocalBillingFallback(method,customer_name,customer_email,checkoutWindow))return;
+      closeCheckoutWindow(checkoutWindow);
+      setBillingStatusMessage(data.message||data.error||'No fue posible crear el checkout.', 'err');
+      return;
+    }
+
+    if(data.checkout?.type==='free'){
+      closeCheckoutWindow(checkoutWindow);
+      closeBillingModal();
+      startFree();
+      return;
+    }
+
+    if(data.checkout?.type==='redirect'){
+      setBillingStatusMessage('Checkout creado. Abriendo una nueva pestaña...', 'ok');
+      openCheckoutWindow(data.checkout.url,checkoutWindow);
+      if(document.getElementById('ws').style.display!=='none')startFree();
+      setTimeout(()=>addMsg('assistant',`Checkout ${method.toUpperCase()} creado. La suscripcion ${data.subscription.public_id} ya quedo registrada en la base de datos.`,mode,false),500);
+      setTimeout(()=>closeBillingModal(),450);
+      return;
+    }
+
+    if(openLocalBillingFallback(method,customer_name,customer_email,checkoutWindow))return;
+    closeCheckoutWindow(checkoutWindow);
+    setBillingStatusMessage('Checkout creado.', 'ok');
+  }catch(e){
+    if(openLocalBillingFallback(method,customer_name,customer_email,checkoutWindow))return;
+    closeCheckoutWindow(checkoutWindow);
+    setBillingStatusMessage('No se pudo crear el checkout. Revisa el backend o la configuracion de pagos.', 'err');
+  }finally{
+    billingBusy=false;
+  }
+}
+async function handleBillingReturnState(){
+  const params=new URLSearchParams(window.location.search);
+  const subscriptionId=params.get('billing_subscription');
+  if(!subscriptionId)return;
+  try{
+    const res=await fetch(`${BACKEND}/billing/subscriptions/${subscriptionId}`);
+    const data=await res.json();
+    const subscription=data.subscription||null;
+    const status=(subscription?.status||params.get('billing_status')||'pending').toUpperCase();
+    const provider=(params.get('billing_provider')||subscription?.provider||'checkout').toUpperCase();
+    const plan=(subscription?.plan_code||selectedPlan).toUpperCase();
+    if(document.getElementById('ws').style.display!=='none')startFree();
+    setTimeout(()=>addMsg('assistant',`Retorno de checkout ${provider}. Suscripcion ${plan} registrada con estado ${status}.`,mode,false),450);
+  }catch(e){}
+  window.history.replaceState({},'',window.location.pathname);
+}
+function buildQaButton(action,extraClass){
+  const classes=['qa-b'];
+  if(action.kind)classes.push(action.kind);
+  if(extraClass)classes.push(extraClass);
+  const b=document.createElement('button');
+  b.className=classes.join(' ');
+  b.textContent=action.l;
+  b.onclick=action.fn||(()=>{if(action.web)toggleWeb(true);qs(action.p);});
+  return b;
+}
+function setScreen(screen){
+  const ws=document.getElementById('ws');
+  const cs=document.getElementById('cs');
+  if(!ws||!cs)return;
+  const showChat=screen==='chat';
+  ws.style.display=showChat?'none':'flex';
+  cs.style.display=showChat?'flex':'none';
+}
+function startFree(){setScreen('chat');updateDriveStatus(!!driveToken);newChat();}
+function startWithDrive(){fetch(`${BACKEND}/auth/login`).then(r=>r.json()).then(d=>{if(d.auth_url)window.location.href=d.auth_url;}).catch(()=>alert('// Error conectando. El servidor puede estar iniciando, espera 30 segundos.'));}
+function goHome(){setScreen('home');}
+function connectDrive(){startWithDrive();}
+function togglePrecision(){precisionMode=!precisionMode;renderFeatureState();}
+function toggleWeb(forceValue){webMode=typeof forceValue==='boolean'?forceValue:!webMode;renderFeatureState();}
+function getModeLabel(){return mode==='gm'?'NEXUS GM':mode==='dev'?'NEXUS DEV':'NEXUS AI';}
+function startBillingFlow(topic){
+  const prompts={
+    overview:'Explicame la estrategia de planes, checkout y cobros de NEXUS. Quiero vender con Free, Pro y Business usando PayPal como metodo principal sin exponer secretos en GitHub.',
+    paypal:'Explicame paso a paso como conectar PayPal a esta app. Dime exactamente como aprovechar el enlace publico ya configurado y que no debo subir a GitHub.',
+    github:'Hazme un checklist corto para subir esta app a GitHub y publicarla de forma presentable sin subir secretos.',
+    pro:'Explicame como deberia cobrar el plan Pro usando PayPal y como vender mejor sus beneficios.',
+    business:'Explicame como presentar el plan Business de 39 USD como una oferta premium, que beneficios remarcar y como canalizar el cobro por PayPal o el contacto comercial.'
+  };
+  if(document.getElementById('ws').style.display!=='none')startFree();
+  setMode('ai');
+  setTimeout(()=>qs(prompts[topic]||prompts.overview),80);
+}
+function startPlanFlow(plan){
+  if(plan==='free'){
+    if(document.getElementById('ws').style.display!=='none')startFree();
+    return;
+  }
+  openBillingModal(plan);
+}
+function renderFeatureState(){
+  const precisionBtn=document.getElementById('precision-toggle');
+  const webBtn=document.getElementById('web-toggle');
+  const note=document.getElementById('assist-note');
+  const info=document.getElementById('ift');
+  if(precisionBtn)precisionBtn.classList.toggle('on',precisionMode);
+  if(webBtn)webBtn.classList.toggle('on',webMode);
+  if(note){
+    note.textContent=(precisionMode
+      ?'Precision alta para personajes, nombres y temas especificos. '
+      :'Modo flexible para respuestas mas abiertas. ')
+      +(webMode
+      ?'WEB LIVE activo para usar informacion reciente cuando haga falta.'
+      :'Activa WEB LIVE cuando necesites actualidad o verificacion externa.')
+      +` Idioma: ${replyLanguage==='auto'?'automatico':replyLanguage}.`;
+  }
+  if(info)info.textContent=`${getModeLabel()} // ${precisionMode?'PRECISION ON':'FLEX MODE'} // ${webMode?'WEB LIVE ON':'WEB LIVE OFF'} // LANG ${getLanguageLabel()} // PDF FAST`;
+}
+
+function updateDriveStatus(connected){
+  const badge=document.getElementById('drive-badge');
+  const sbStatus=document.getElementById('sb-drive-status');
+  if(connected){
+    badge.textContent='DRIVE CONECTADO';badge.className='drive-badge on';badge.onclick=null;
+    sbStatus.textContent='DRIVE: CONECTADO';sbStatus.className='sb-drive on';
+    const qa=document.getElementById('qa');
+    const existing=Array.from(qa.children).filter(b=>b.dataset.drive);
+    if(!existing.length){
+      const driveActions=[
+        {l:'Ver Drive',fn:driveList},{l:'Buscar en Drive',fn:driveSearch},
+        {l:'Subir a Drive',fn:()=>document.getElementById('file-input').click()},
+        {l:'Nueva carpeta',fn:driveNewFolder}
+      ];
+      driveActions.forEach(a=>{
+        const b=buildQaButton(a,'drive');b.dataset.drive='1';
+        qa.insertBefore(b,qa.firstChild);
+      });
+    }
+  }else{
+    badge.textContent='CONECTAR DRIVE';badge.className='drive-badge off';badge.onclick=connectDrive;
+    sbStatus.textContent='DRIVE: NO CONECTADO';sbStatus.className='sb-drive off';
+  }
+  document.getElementById('drive-badge').style.display='block';
+}
+
+function toggleSB(){sbOpen=!sbOpen;document.getElementById('sidebar').classList.toggle('col',!sbOpen);}
+
+function renderSB(){
+  const list=document.getElementById('sbl');list.innerHTML='';
+  if(!chats.length){list.innerHTML='<div style="padding:14px 10px;font-size:10px;color:var(--text-dim);letter-spacing:1px;">// Sin conversaciones</div>';return;}
+  [...chats].reverse().forEach(c=>{
+    const it=document.createElement('div');it.className='ci'+(c.id===activeId?' act':'');
+    it.innerHTML=`<div class="ci-mode ${c.mode}">${M[c.mode]?.name||'IA'}</div><div class="ci-title">${c.title}</div><div class="ci-time">${c.time}</div><button class="ci-del" onclick="delChat('${c.id}',event)">X</button>`;
+    it.onclick=()=>loadChat(c.id);list.appendChild(it);
+  });
+}
+
+function saveChats(){if(chats.length>50)chats=chats.slice(-50);localStorage.setItem('nexus_chats',JSON.stringify(chats));renderSB();}
+
+function newChat(){
+  hist=[];activeId='c'+Date.now();
+  document.getElementById('msgs').innerHTML='';
+  setMode(mode);renderSB();
+}
+
+function loadChat(id){
+  const c=chats.find(x=>x.id===id);if(!c)return;
+  activeId=id;hist=c.messages||[];mode=c.mode||'ai';
+  const md=M[mode];
+  document.querySelectorAll('.mb-btn').forEach(b=>b.classList.toggle('act',b.dataset.m===mode));
+  document.getElementById('modet').textContent=md.tag;
+  document.getElementById('modet').style.color=md.tc;
+  document.getElementById('ia').className=`ia m-${mode}`;
+  document.getElementById('il').textContent=md.il;
+  document.getElementById('mi').placeholder=md.ph;
+  document.getElementById('snd').className=`snd ${mode}`;
+  const qa=document.getElementById('qa');
+  const driveButtons=Array.from(qa.children).filter(b=>b.dataset.drive);
+  qa.innerHTML='';
+  driveButtons.forEach(b=>qa.appendChild(b));
+  md.qa.forEach(a=>qa.appendChild(buildQaButton(a)));
+  document.getElementById('msgs').innerHTML='';
+  (c.rendered||[]).forEach(m=>addMsg(m.role,m.content,m.mode,false,null,null,m.meta));
+  renderFeatureState();
+  renderSB();
+}
+
+function delChat(id,e){e.stopPropagation();chats=chats.filter(c=>c.id!==id);if(activeId===id)newChat();saveChats();}
+
+function updChat(uMsg,aMsg,aMeta){
+  const ex=chats.find(c=>c.id===activeId);
+  const title=uMsg.substring(0,35)+(uMsg.length>35?'...':'');
+  const time=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  if(ex){ex.messages=hist;ex.time=time;if(!ex.rendered)ex.rendered=[];ex.rendered.push({role:'user',content:uMsg,mode});ex.rendered.push({role:'assistant',content:aMsg,mode,meta:aMeta||null});}
+  else{chats.push({id:activeId,title,mode,time,messages:[...hist],rendered:[{role:'user',content:uMsg,mode},{role:'assistant',content:aMsg,mode,meta:aMeta||null}]});}
+  saveChats();
+}
+
+function setMode(m){
+  mode=m;const md=M[m];
+  document.querySelectorAll('.mb-btn').forEach(b=>b.classList.toggle('act',b.dataset.m===m));
+  const mt=document.getElementById('modet');mt.textContent=md.tag;mt.style.color=md.tc;
+  document.getElementById('ia').className=`ia m-${m}`;
+  document.getElementById('il').textContent=md.il;
+  document.getElementById('ift').textContent=md.ft;
+  document.getElementById('mi').placeholder=md.ph;
+  document.getElementById('snd').className=`snd ${m}`;
+  const qa=document.getElementById('qa');
+  const driveButtons=Array.from(qa.children).filter(b=>b.dataset.drive);
+  qa.innerHTML='';
+  driveButtons.forEach(b=>qa.appendChild(b));
+  md.qa.forEach(a=>qa.appendChild(buildQaButton(a)));
+  renderFeatureState();
+  if(!document.getElementById('msgs').children.length)addMsg('assistant',md.w,m,false);
+  hist=[];
+}
+
+function getSourceText(meta){
+  if(!meta?.web_results?.length)return '';
+  return 'Fuentes web:\n'+meta.web_results.slice(0,3).map((item,idx)=>{
+    let host=item.url||'';
+    try{host=new URL(item.url).hostname.replace('www.','');}catch(e){}
+    return `[${idx+1}] ${item.title} - ${host}`;
+  }).join('\n');
+}
+
+function addMsg(role,content,m,save,imgSrc,fileName,meta){
+  m=m||mode;const md=M[m]||M.ai;
+  const msgs=document.getElementById('msgs');
+  const row=document.createElement('div');row.className=`mr ${role} m-${m}`;
+  if(role==='assistant'){const av=document.createElement('div');av.className=`av ${md.av}`;av.textContent=md.icon;row.appendChild(av);}
+  const wrap=document.createElement('div');wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.alignItems=role==='user'?'flex-end':'flex-start';
+  if(imgSrc){const img=document.createElement('img');img.src=imgSrc;img.className='msg-img';wrap.appendChild(img);}
+  if(fileName&&!imgSrc){const fd=document.createElement('div');fd.className='msg-file';fd.textContent=fileName;wrap.appendChild(fd);}
+  const b=document.createElement('div');b.className='mb2';b.textContent=content;
+  wrap.appendChild(b);
+  if(role==='assistant'&&meta?.web_results?.length){
+    const src=document.createElement('div');src.className='source-note';src.textContent=getSourceText(meta);wrap.appendChild(src);
+  }
+  row.appendChild(wrap);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const md=M[mode];const msgs=document.getElementById('msgs');
+  const row=document.createElement('div');row.className='trow';row.id='ti';
+  const av=document.createElement('div');av.className=`av ${md.av}`;av.textContent=md.icon;
+  const b=document.createElement('div');b.className=`tb ${mode}`;
+  b.innerHTML=`<div class="td ${mode}"></div><div class="td ${mode}"></div><div class="td ${mode}"></div>`;
+  row.appendChild(av);row.appendChild(b);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById('ti');if(el)el.remove();}
+
+// CHAT FILE HANDLING
+function getPdfCacheKey(file){return `nexus_pdf_${file.name}_${file.size}_${file.lastModified}`;}
+function readPdfCache(file){
+  try{return JSON.parse(localStorage.getItem(getPdfCacheKey(file))||'null');}
+  catch(e){return null;}
+}
+function writePdfCache(file,payload){
+  try{localStorage.setItem(getPdfCacheKey(file),JSON.stringify(payload));}
+  catch(e){}
+}
+function formatPdfMeta(file,meta){
+  const parts=[file.name];
+  if(meta?.pages_scanned&&meta?.total_pages)parts.push(`${meta.pages_scanned}/${meta.total_pages} pags`);
+  if(meta?.elapsed_ms)parts.push(`${(meta.elapsed_ms/1000).toFixed(1)}s`);
+  parts.push(meta?.cached?'cache local':(meta?.truncated?'vista rapida':'completo'));
+  return parts.join(' | ');
+}
+function getFileContextPrefix(fileData){
+  if(!fileData?.meta||fileData.meta.kind!=='pdf')return '';
+  const meta=fileData.meta;
+  return `[PDF Express: ${meta.pages_scanned||0}/${meta.total_pages||'?'} paginas${meta.truncated?', vista parcial':''}${meta.cached?', cache local':''}]`;
+}
+
+function handleChatFile(input){
+  const file=input.files[0];if(!file)return;
+  const isImage=file.type.startsWith('image/');
+  const isPDF=file.type==='application/pdf';
+
+  if(isPDF){
+    const fp=document.getElementById('file-preview');
+    document.getElementById('fp-img').style.display='none';
+    const cachedPdf=readPdfCache(file);
+    if(cachedPdf?.text){
+      const pdfMeta={...(cachedPdf.meta||{}),kind:'pdf',cached:true};
+      chatFileData={type:'text',content:cachedPdf.text,name:file.name,mimeType:'text/plain',meta:pdfMeta};
+      document.getElementById('fp-name').textContent=formatPdfMeta(file,pdfMeta);
+      fp.classList.add('show');
+      document.getElementById('mi').placeholder='Pregunta algo sobre este PDF...';
+      document.getElementById('mi').focus();
+      input.value='';
+      return;
+    }
+    document.getElementById('fp-name').textContent='Leyendo PDF...';
+    fp.classList.add('show');
+    document.getElementById('fp-name').textContent='Leyendo PDF en modo rapido...';
+    const fd=new FormData();fd.append('file',file);
+    fd.append('max_chars','18000');fd.append('max_pages','12');
+    fetch(`${BACKEND}/extract/pdf`,{method:'POST',body:fd})
+      .then(r=>r.json())
+      .then(data=>{
+        if(data.error){
+          document.getElementById('fp-name').textContent='Error leyendo PDF';
+          setTimeout(()=>clearChatFile(),2000);
+          document.getElementById('fp-name').textContent='Error leyendo PDF';
+          return;
+        }
+        const pdfMeta={kind:'pdf',pages_scanned:data.pages_scanned,total_pages:data.total_pages,truncated:data.truncated,elapsed_ms:data.elapsed_ms,cached:false};
+        writePdfCache(file,{text:data.text,meta:pdfMeta});
+        chatFileData={type:'text',content:data.text,name:file.name,mimeType:'text/plain',meta:pdfMeta};
+        document.getElementById('fp-name').textContent=file.name+' ('+Math.round(data.text.length/1000)+'k chars)';
+        document.getElementById('mi').placeholder='Pregunta algo sobre este PDF...';
+        document.getElementById('fp-name').textContent=formatPdfMeta(file,pdfMeta);
+        document.getElementById('mi').focus();
+      })
+      .catch(()=>{
+        document.getElementById('fp-name').textContent='Error leyendo PDF';
+        setTimeout(()=>clearChatFile(),2000);
+        document.getElementById('fp-name').textContent='Error leyendo PDF';
+      });
+    input.value='';
+    return;
+  }
+
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const result=e.target.result;
+    if(isImage){
+      chatFileData={type:'image',content:result.split(',')[1],name:file.name,mimeType:file.type};
+      document.getElementById('fp-img').src=result;
+      document.getElementById('fp-img').style.display='block';
+    }else{
+      chatFileData={type:'text',content:result,name:file.name,mimeType:file.type};
+      document.getElementById('fp-img').style.display='none';
+    }
+    document.getElementById('fp-name').textContent=file.name;
+    document.getElementById('file-preview').classList.add('show');
+    document.getElementById('mi').placeholder='Pregunta algo sobre este archivo...';
+    document.getElementById('mi').focus();
+  };
+  if(isImage)reader.readAsDataURL(file);
+  else reader.readAsText(file);
+  input.value='';
+}
+
+function clearChatFile(){
+  chatFileData=null;
+  document.getElementById('file-preview').classList.remove('show');
+  document.getElementById('fp-img').src='';document.getElementById('fp-img').style.display='none';
+  document.getElementById('fp-name').textContent='';
+  document.getElementById('mi').placeholder=M[mode].ph;
+}
+
+function getChatTemperature(){
+  if(mode==='gm')return 1.0;
+  if(mode==='dev')return precisionMode?0.25:0.45;
+  return precisionMode?0.2:0.7;
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('mi');const txt=inp.value.trim();
+  if((!txt&&!chatFileData)||loading)return;
+  inp.value='';inp.style.height='auto';
+  loading=true;document.getElementById('snd').disabled=true;
+
+  const hasFile=!!chatFileData;
+  const imgSrc=hasFile&&chatFileData.type==='image'?`data:${chatFileData.mimeType};base64,${chatFileData.content}`:null;
+  const fileName=hasFile?chatFileData.name:null;
+  const userText=txt||(hasFile?`Analiza este archivo: ${chatFileData.name}`:'');
+
+  addMsg('user',userText,mode,false,imgSrc,!imgSrc?fileName:null);
+
+  // Build message content
+  let userContent;
+  if(chatFileData){
+    if(chatFileData.type==='image'){
+      userContent=[
+        {type:'image_url',image_url:{url:`data:${chatFileData.mimeType};base64,${chatFileData.content}`}},
+        {type:'text',text:userText}
+      ];
+    }else{
+      // Text file - include content inline
+      const filePrefix=getFileContextPrefix(chatFileData);
+      const fileCtx=`${filePrefix?filePrefix+'\n':''}[Archivo adjunto: ${chatFileData.name}]\n\`\`\`\n${chatFileData.content.substring(0,8000)}\n\`\`\`\n\n${userText}`;
+      userContent=fileCtx;
+    }
+    clearChatFile();
+  }else{
+    userContent=userText;
+  }
+
+  hist.push({role:'user',content:userContent});
+  showTyping();
+
+  try{
+    const messages=[
+      {role:'system',content:M[mode].sys},
+      {role:'system',content:getLanguageSystemPrompt()}
+    ];
+    for(const m of hist)messages.push({role:m.role==='model'?'assistant':m.role,content:m.content});
+    const res=await fetch(`${BACKEND}/chat`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages,temperature:getChatTemperature(),max_tokens:1700,use_web:webMode,precision_mode:precisionMode,reply_language:replyLanguage})
+    });
+    const data=await res.json();hideTyping();
+    if(res.ok&&data.choices){
+      const reply=data.choices[0].message.content;
+      const replyMeta=data.nexus_meta||null;
+      addMsg('assistant',reply,mode,false,null,null,replyMeta);
+      hist.push({role:'assistant',content:reply});
+      if(hist.length>30)hist=hist.slice(-30);
+      updChat(userText,reply,replyMeta);
+    }else{
+      addMsg('assistant','// ERROR: '+(data.error?.message||'Algo salio mal. El servidor puede estar iniciando (30 seg).'));
+    }
+  }catch(e){hideTyping();addMsg('assistant','// ERROR DE CONEXION. El servidor puede estar iniciando, espera 30 seg e intenta de nuevo.');}
+  finally{loading=false;document.getElementById('snd').disabled=false;document.getElementById('mi').focus();}
+}
+
+async function qs(t){if(loading)return;document.getElementById('mi').value=t;await sendMsg();}
+function clearChat(){
+  document.getElementById('msgs').innerHTML='';
+  hist=[];
+  activeId='c'+Date.now();
+  clearChatFile();
+  const languageHint=replyLanguage==='auto'?'Idioma de respuesta automatico.':'Idioma de respuesta: '+replyLanguage+'.';
+  addMsg('assistant',`${M[mode].w}\n${languageHint}`,mode,false);
+}
+
+// DRIVE
+async function driveList(){
+  addMsg('user','Ver mis archivos de Drive');showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/list?folder_id=${rootFolderId}`,{headers:{'X-Drive-Token':driveToken}});
+    const data=await res.json();hideTyping();
+    if(data.error){addMsg('assistant','// ERROR: '+data.error);return;}
+    if(!data.files.length){addMsg('assistant','Carpeta vacia.');return;}
+    let msg=`DRIVE // ${rootFolderName.toUpperCase()}\n${'-'.repeat(30)}\n`;
+    data.files.forEach(f=>{msg+=((f.mimeType==='application/vnd.google-apps.folder')?'[DIR] ':'[FILE] ')+f.name+'\n';});
+    addMsg('assistant',msg);
+  }catch(e){hideTyping();addMsg('assistant','// ERROR: Problema con el servidor.');}
+}
+
+async function driveSearch(){
+  const q=prompt('// BUSCAR:\nNombre del archivo:');if(!q)return;
+  addMsg('user','Buscar en Drive: '+q);showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/search?q=${encodeURIComponent(q)}`,{headers:{'X-Drive-Token':driveToken}});
+    const data=await res.json();hideTyping();
+    if(!data.files?.length){addMsg('assistant',`// NOT FOUND: "${q}" no existe.`);return;}
+    let msg=`BUSQUEDA // "${q}"\n${'-'.repeat(28)}\n`;
+    data.files.forEach(f=>{msg+=`[FILE] ${f.name}\n`;});
+    addMsg('assistant',msg);
+  }catch(e){hideTyping();addMsg('assistant','// ERROR DE CONEXION.');}
+}
+
+async function driveNewFolder(){
+  const name=prompt('// NUEVA CARPETA:\nNombre:');if(!name)return;
+  addMsg('user','Crear carpeta: '+name);showTyping();
+  try{
+    const res=await fetch(`${BACKEND}/drive/folder`,{method:'POST',headers:{'Content-Type':'application/json','X-Drive-Token':driveToken},body:JSON.stringify({name,parent_id:rootFolderId})});
+    const data=await res.json();hideTyping();
+    if(data.success)addMsg('assistant',`Carpeta "${data.folder.name}" creada.`);
+    else addMsg('assistant','// ERROR: '+data.error);
+  }catch(e){hideTyping();addMsg('assistant','// ERROR DE CONEXION.');}
+}
+
+// Upload to Drive with folder navigator
+function openUpload(input){
+  const file=input.files[0];if(!file)return;
+  pendingDriveFile=file;navStack=[];curFolderId=rootFolderId;curFolderName=rootFolderName;
+  document.getElementById('modal-file').textContent='[FILE] '+file.name;
+  renderBC();loadFolders(rootFolderId);updateDest();
+  document.getElementById('upload-modal').classList.add('show');
+  input.value='';
+}
+
+function renderBC(){
+  const bc=document.getElementById('modal-bc');bc.innerHTML='';
+  const r=document.createElement('span');r.className='bc-item';r.textContent=rootFolderName;
+  r.onclick=()=>navTo(rootFolderId,rootFolderName,-1);bc.appendChild(r);
+  navStack.forEach((item,idx)=>{
+    const sep=document.createElement('span');sep.className='bc-sep';sep.textContent=' > ';bc.appendChild(sep);
+    if(idx<navStack.length-1){const s=document.createElement('span');s.className='bc-item';s.textContent=item.name;s.onclick=()=>navTo(item.id,item.name,idx);bc.appendChild(s);}
+    else{const s=document.createElement('span');s.className='bc-cur';s.textContent=item.name;bc.appendChild(s);}
+  });
+}
+
+async function loadFolders(fid){
+  const fl=document.getElementById('modal-fl');fl.innerHTML='<div class="fl-load">// CARGANDO...</div>';
+  try{
+    const res=await fetch(`${BACKEND}/drive/folders?folder_id=${fid}`,{headers:{'X-Drive-Token':driveToken}});
+    const data=await res.json();fl.innerHTML='';
+    if(!data.folders?.length){fl.innerHTML='<div class="fl-empty">// Sin subcarpetas - subir aqui</div>';return;}
+    data.folders.forEach(f=>{
+      const it=document.createElement('div');it.className='fi';
+      it.innerHTML=`<span class="fi-name">${f.name}</span><span class="fi-arr">ENTRAR ></span>`;
+      it.onclick=()=>{navStack.push({id:f.id,name:f.name});curFolderId=f.id;curFolderName=f.name;renderBC();loadFolders(f.id);updateDest();};
+      fl.appendChild(it);
+    });
+  }catch(e){fl.innerHTML='<div class="fl-empty">// ERROR: Problema con el servidor</div>';}
+}
+
+function navTo(id,name,idx){
+  if(idx===-1){navStack=[];curFolderId=rootFolderId;curFolderName=rootFolderName;}
+  else{navStack=navStack.slice(0,idx+1);curFolderId=id;curFolderName=name;}
+  renderBC();loadFolders(curFolderId);updateDest();
+}
+
+function updateDest(){
+  const path=[rootFolderName,...navStack.map(s=>s.name)].join(' > ');
+  document.getElementById('dest-txt').textContent=path;
+}
+
+function closeUpload(){document.getElementById('upload-modal').classList.remove('show');pendingDriveFile=null;}
+
+async function confirmUpload(){
+  if(!pendingDriveFile)return;
+  const file=pendingDriveFile,fid=curFolderId;
+  const path=[rootFolderName,...navStack.map(s=>s.name)].join(' > ');
+  closeUpload();
+  addMsg('user',`Subir "${file.name}"\n-> ${path}`);showTyping();
+  const fd=new FormData();fd.append('file',file);fd.append('folder_id',fid);
+  pendingDriveFile=null;
+  try{
+    const res=await fetch(`${BACKEND}/drive/upload`,{method:'POST',headers:{'X-Drive-Token':driveToken},body:fd});
+    const data=await res.json();hideTyping();
+    if(data.success)addMsg('assistant',`"${data.file.name}" subido a:\n${path}`);
+    else addMsg('assistant','// ERROR: '+data.error);
+  }catch(e){hideTyping();addMsg('assistant','// ERROR DE CONEXION.');}
+}
+</script>
+</body>
+</html>
